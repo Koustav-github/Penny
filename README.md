@@ -39,7 +39,8 @@ Build a working product you can show on GitHub and deploy.
 - savings suggestions
 - simple financial tips
 
-```Example:
+```
+Example:
 You spent 35% on food this month.
 Try reducing to 20% to increase savings.
 ```
@@ -50,7 +51,7 @@ Try reducing to 20% to increase savings.
 
 ### Frontend:
 
-- React
+- Nextjs
 
 ### Backend:
 
@@ -62,7 +63,7 @@ Try reducing to 20% to increase savings.
 
 ### AI:
 
-- Open-source LLM
+- Open-source LLM (preferrably groq)
 
 ### Hosting:
 
