@@ -1,2 +1,18 @@
-# Penny
-An all in one money management application. Everything money you want to know, manage, invest, grow. Our main aim is to make the topic of money simple for people and know which strategy is good for them according to their situation to somewhat stabilize and grow their assets.
+# 🧭 Overall Vision of Penny
+# PennyPenny
+
+ AI financial assistant that manages and grows user money
+
+
+## Core idea:
+
+- track all assets
+- analyze finances
+- suggest investments
+- create strategies
+- eventually execute trades
+- fully compliant with SEBI
+
+So the roadmap moves like:
+
+Tracker → Advisor → Planner → Assistant → Investor → Regulated Fintech
