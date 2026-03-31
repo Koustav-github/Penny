@@ -68,3 +68,103 @@ Try reducing to 20% to increase savings.
 ### Hosting:
 
 - TBD
+
+
+## 🟡 Version 0.2 — Penny AI Advisor
+Goal
+
+Make AI smarter and useful.
+
+### Features
+- AI financial advisor
+- goal-based planning
+- investment suggestions
+- risk profiling
+- savings strategy
+
+### User inputs:
+
+- income
+- expenses
+- goals
+- risk level
+
+    |
+    |
+    |
+    |
+
+### AI outputs:
+
+- SIP plan
+- emergency fund plan
+- investment allocation
+
+```
+Example:
+
+Invest ₹5000/month in index funds
+Build emergency fund of ₹1.5 lakh
+Keep 20% in liquid assets
+```
+
+### AI System
+
+- RAG-based financial knowledge system.
+
+### Sources:
+
+- financial books
+- investment strategies
+- market data
+- economic principles
+
+### Now Penny becomes:
+
+- intelligent advisor
+
+### Outcome
+
+- This becomes a serious AI engineering project.
+
+
+## 🟠 Version 0.3 — Penny Smart Assistant
+
+Goal
+
+Automation and real-time data.
+
+### Features
+- stock market API
+- crypto API
+- portfolio tracking
+- real-time prices
+- alerts
+- recommendations
+
+```
+Example:
+
+Nifty is down 4%
+Good opportunity to invest
+
+or
+
+Bitcoin volatility high, reduce exposure
+```
+
+### Add
+
+- AI agent that:
+
+-- monitors portfolio
+-- sends alerts
+-- recommends actions
+
+### Now Penny becomes:
+
+financial assistant
+
+### Outcome
+
+Production-level portfolio AI.
