@@ -168,3 +168,139 @@ financial assistant
 ### Outcome
 
 Production-level portfolio AI.
+
+## 🔵 Version 0.4 — Penny AI Planner (Semi-Automated)
+Goal
+
+AI creates full investment plan.
+
+### Features
+- asset allocation
+- rebalancing suggestions
+- strategy simulation
+- backtesting
+
+```
+Example:
+
+AI says:
+
+50% index funds
+20% bonds
+20% stocks
+10% gold
+
+and shows:
+
+expected return
+risk
+long-term growth
+Add
+
+Simulation engine.
+
+User sees:
+
+If you follow this plan for 10 years, your wealth becomes ₹X
+```
+
+
+### Now Penny becomes:
+
+- robo-advisor
+
+
+## 🟣 Version 0.5 — Penny Investor (API Integration)
+Goal
+
+Connect real trading platforms.
+
+## Features
+- connect brokerage
+- connect crypto wallet
+- connect trading API
+- trade suggestions
+
+## Platforms like:
+
+- Zerodha
+- Upstox
+- Binance
+
+## User authorizes:
+
+- Penny can suggest trades
+
+- but still not auto-execute.
+
+- Manual approval required.
+
+### Outcome
+
+- Real fintech system.
+
+- Still legal.
+
+- Because: AI suggests, user executes.
+
+## 🔴 Version 1.0 — Penny (SEBI Authorized Launch)
+Goal
+
+Full legal fintech.
+
+### Now:
+
+- AI executes trades.
+
+### Required
+
+- SEBI registration.
+
+- Through: Securities and Exchange Board of India
+
+### License type:
+
+- Investment Advisor
+- Portfolio Manager
+- Robo-advisor
+
+### Requirements:
+
+- company registration
+- compliance
+- audits
+- financial security
+- data protection
+- legal structure
+- Features
+- automated trading
+- investment execution
+- portfolio management
+- compliance
+- security
+
+### Now Penny becomes:
+
+AI financial investor platform
+
+
+## 🟤 Version 2.0 — Penny Autonomous Investor
+
+```
+Future vision.
+
+AI:
+
+monitors economy
+adjusts investments
+optimizes portfolio
+executes trades
+manages wealth
+
+Like:
+
+Wealthfront
+Betterment
+
+But AI-first.
+```
