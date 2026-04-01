@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title = "Penny Backend")
 
