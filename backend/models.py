@@ -8,9 +8,8 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, unique=True, index=True)
-    clerk_id = Column(Integer, primary_key=True, index=True, nullable=False)
+    clerk_id = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    password = Column(String, nullable=False)
     net_asset = Column(Float, default = 0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

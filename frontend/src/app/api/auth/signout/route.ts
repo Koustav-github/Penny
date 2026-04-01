@@ -9,5 +9,5 @@ export async function GET(request: Request) {
     await clerk.sessions.revokeSession(sessionId)
   }
 
-  return NextResponse.redirect(new URL('/login', request.url))
+  return NextResponse.redirect(new URL('/', request.url))
 }
