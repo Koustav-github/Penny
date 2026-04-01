@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface DashboardClientProps {
@@ -10,7 +11,23 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ firstName, email }: DashboardClientProps) {
   const { isLoaded, isSignedIn, user } = useUser();
+  const { getToken } = useAuth();
+  const router = useRouter();
 
+  const SignOut = async () => {
+    const token = await getToken()
+    try{
+      await fetch("http://localhost:8000/users/signout",{
+      method: "POST",
+      headers: {Authorization: `Bearer ${token}`},
+    })
+    }
+    catch(error){
+      console.error("An error occurred while signing out: ", error);
+    }
+    router.push("/");
+  }
+  
   useEffect(() => {
     const syncUser = async () => {
       try {
@@ -108,12 +125,12 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               Live
             </div>
-            <Link
-              href="/api/auth/signout"
+            <button
+              onClick={SignOut}
               className="text-xs text-white/40 hover:text-white/70 transition-colors px-3 py-1.5 rounded-full hover:bg-white/5"
             >
               Sign out
-            </Link>
+            </button>
           </div>
         </header>
 
