@@ -1,5 +1,6 @@
 # 🧭 Overall Vision of Penny
-# PennyPenny
+
+# Penny
 
  AI financial assistant that manages and grows user money
 
