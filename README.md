@@ -304,4 +304,6 @@ Wealthfront
 Betterment
 
 But AI-first.
+
+AUTHOR: KOUSTAV MANNA 
 ```
