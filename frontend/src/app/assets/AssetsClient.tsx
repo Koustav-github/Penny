@@ -99,7 +99,7 @@ export default function AssetsClient() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{a.name}</p>
                     <p className="text-xs text-faint">
-                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}
+                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}{a.emi != null ? ` · EMI ${formatCurrency(a.emi, currency)}/mo` : ''}
                     </p>
                   </div>
                 </div>

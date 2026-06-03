@@ -4,10 +4,12 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { api, type ExpenseInput } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
+import { computeNetWorth } from "@/lib/networth";
 import { CATEGORIES, type Asset, type AssetSummary } from "@/lib/assets";
 import { categoryLabel, type ExpenseSummary } from "@/lib/expenses";
 import CategoryDonut from "@/components/CategoryDonut";
 import ExpenseForm from "@/components/ExpenseForm";
+import SalaryEditor from "@/components/SalaryEditor";
 
 interface DashboardClientProps {
   firstName: string;
@@ -21,17 +23,20 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   const [summary, setSummary] = useState<AssetSummary | null>(null);
   const [assetList, setAssetList] = useState<Asset[]>([]);
   const [expenses, setExpenses] = useState<ExpenseSummary | null>(null);
+  const [salary, setSalary] = useState(0);
   const [expenseFormOpen, setExpenseFormOpen] = useState(false);
 
   const reload = async () => {
-    const [s, a, e] = await Promise.all([
+    const [s, a, e, m] = await Promise.all([
       api.summary(getToken),
       api.listAssets(getToken),
       api.expenseSummary(getToken),
+      api.me(getToken),
     ]);
     setSummary(s);
     setAssetList(a);
     setExpenses(e);
+    setSalary(m.monthly_salary);
   };
 
   const logExpense = async (input: ExpenseInput) => {
@@ -61,7 +66,8 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   const currency = summary?.currency ?? "INR";
   const assetTotal = summary?.total ?? 0;
   const thisMonthSpend = expenses?.total ?? 0;
-  const netWorth = assetTotal - thisMonthSpend; // assets minus this month's expenses
+  const emiTotal = summary?.emi_total ?? 0;
+  const netWorth = computeNetWorth({ assetTotal, salary, monthExpenses: thisMonthSpend, emiTotal });
   const monthly = expenses?.monthly ?? [];
   const maxMonthly = Math.max(1, ...monthly.map((m) => m.total));
   const topCategory = expenses?.by_category?.[0];
@@ -106,7 +112,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
                   {formatCurrency(netWorth, currency)}
                 </p>
                 <p className="text-sm text-muted mt-3">
-                  {formatCurrency(assetTotal, currency)} in assets − {formatCurrency(thisMonthSpend, currency)} spent this month
+                  {formatCurrency(assetTotal, currency)} assets + {formatCurrency(salary, currency)} income − {formatCurrency(thisMonthSpend, currency)} spent − {formatCurrency(emiTotal, currency)} EMIs
                 </p>
               </div>
               <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-positive/15 text-positive text-xs font-semibold">
@@ -158,10 +164,14 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="This Month Spent" value={formatCurrency(expenses?.total ?? 0, currency)} sub={`${expenses?.count ?? 0} transactions`} />
+          <div className="rounded-2xl border border-accent/25 bg-accent/10 p-5">
+            <p className="text-[11px] font-semibold text-faint uppercase tracking-[0.16em] mb-2">Monthly Income</p>
+            <SalaryEditor value={salary} currency={currency} onSaved={setSalary} />
+            <p className="text-xs text-muted mt-1">Increments net worth</p>
+          </div>
+          <StatCard label="This Month Spent" value={formatCurrency(thisMonthSpend, currency)} sub={`${expenses?.count ?? 0} transactions`} />
+          <StatCard label="Monthly EMIs" value={formatCurrency(emiTotal, currency)} sub={emiTotal > 0 ? "Across your loans" : "No loans"} />
           <StatCard label="Top Category" value={topCategory ? categoryLabel(topCategory.category) : "—"} sub={topCategory ? `${topCategory.pct}% of spend` : "No data"} />
-          <StatCard label="Assets Tracked" value={String(assetList.length)} sub={`${summary?.by_category.length ?? 0} categories`} />
-          <StatCard label="Net Worth" value={formatCurrency(netWorth, currency)} sub={currency} accent />
         </div>
 
         {/* Spending trend + assets */}

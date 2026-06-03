@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { api } from '@/lib/api'
 import { formatCurrency } from '@/lib/format'
+import { computeNetWorth } from '@/lib/networth'
 import { CATEGORIES, CATEGORY_COLORS, type AssetSummary } from '@/lib/assets'
 import {
   categoryLabel,
@@ -15,14 +16,16 @@ export default function AnalyticsClient() {
   const { getToken } = useAuth()
   const [assets, setAssets] = useState<AssetSummary | null>(null)
   const [expenses, setExpenses] = useState<ExpenseSummary | null>(null)
+  const [salary, setSalary] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([api.summary(getToken), api.expenseSummary(getToken)])
-      .then(([a, e]) => {
+    Promise.all([api.summary(getToken), api.expenseSummary(getToken), api.me(getToken)])
+      .then(([a, e, m]) => {
         setAssets(a)
         setExpenses(e)
+        setSalary(m.monthly_salary)
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load analytics'))
       .finally(() => setLoading(false))
@@ -42,7 +45,8 @@ export default function AnalyticsClient() {
   }
 
   const assetTotal = assets?.total ?? 0
-  const netWorth = assetTotal - (expenses?.total ?? 0) // assets minus this month's expenses
+  const emiTotal = assets?.emi_total ?? 0
+  const netWorth = computeNetWorth({ assetTotal, salary, monthExpenses: expenses?.total ?? 0, emiTotal })
   const monthly = expenses?.monthly ?? []
   const monthsWithSpend = monthly.filter((m) => m.total > 0)
   const avgMonthly =
@@ -60,7 +64,7 @@ export default function AnalyticsClient() {
   const hasSpend = monthsWithSpend.length > 0
 
   const kpis = [
-    { label: 'Net Worth', value: formatCurrency(netWorth, currency), sub: `Assets − ${formatCurrency(thisMonthSpend, currency)} spent`, accent: true },
+    { label: 'Net Worth', value: formatCurrency(netWorth, currency), sub: `+${formatCurrency(salary, currency)} income · −${formatCurrency(emiTotal, currency)} EMIs`, accent: true },
     { label: 'This Month', value: formatCurrency(thisMonthSpend, currency), sub: `${expenses?.count ?? 0} transactions` },
     { label: 'Avg Monthly Spend', value: formatCurrency(avgMonthly, currency), sub: 'Last 6 months' },
   ]

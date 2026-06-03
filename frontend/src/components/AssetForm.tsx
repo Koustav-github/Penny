@@ -16,11 +16,13 @@ export default function AssetForm({ initial, onSubmit, onClose }: Props) {
   const [subtype, setSubtype] = useState(initial?.subtype ?? 'Savings')
   const [quantity, setQuantity] = useState(initial?.quantity?.toString() ?? '')
   const [value, setValue] = useState(initial?.value?.toString() ?? '')
+  const [emi, setEmi] = useState(initial?.emi?.toString() ?? '')
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   const showQuantity = QUANTITY_CATEGORIES.includes(category)
   const showSubtype = category === 'bank'
+  const isLoan = category === 'loan'
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,6 +35,7 @@ export default function AssetForm({ initial, onSubmit, onClose }: Props) {
         subtype: showSubtype ? subtype : null,
         quantity: showQuantity ? Number(quantity) : null,
         value: Number(value),
+        emi: isLoan ? Number(emi) : null,
       })
       onClose()
     } catch (err) {
@@ -89,7 +92,18 @@ export default function AssetForm({ initial, onSubmit, onClose }: Props) {
           <Input label="Quantity" type="number" value={quantity} onChange={setQuantity} placeholder="0.5" required />
         )}
 
-        <Input label="Current value" type="number" value={value} onChange={setValue} placeholder="0.00" required />
+        <Input
+          label={isLoan ? 'Outstanding amount' : 'Current value'}
+          type="number"
+          value={value}
+          onChange={setValue}
+          placeholder="0.00"
+          required
+        />
+
+        {isLoan && (
+          <Input label="Monthly EMI" type="number" value={emi} onChange={setEmi} placeholder="0.00" required />
+        )}
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-muted hover:text-ink transition-colors">
