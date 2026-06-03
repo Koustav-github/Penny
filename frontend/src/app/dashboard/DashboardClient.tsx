@@ -1,5 +1,4 @@
 "use client";
-<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
@@ -8,11 +7,6 @@ import { formatCurrency } from "@/lib/format";
 import { CATEGORIES, type Asset, type AssetSummary } from "@/lib/assets";
 import CategoryDonut from "@/components/CategoryDonut";
 import ExpenseForm from "@/components/ExpenseForm";
-=======
-import { useEffect } from "react";
-import { useAuth, useUser } from "@clerk/nextjs";
-import Link from "next/link";
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 
 interface DashboardClientProps {
   firstName: string;
@@ -38,11 +32,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
     // cookie persists and the middleware sends you back to /dashboard.
     await signOut({ redirectUrl: "/" });
   }
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
   useEffect(() => {
     const syncUser = async () => {
       try {
@@ -65,7 +54,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
     }
   }, [isLoaded, isSignedIn, user]);
 
-<<<<<<< HEAD
   const [summary, setSummary] = useState<AssetSummary | null>(null)
   const [assetList, setAssetList] = useState<Asset[]>([])
   const [expenseFormOpen, setExpenseFormOpen] = useState(false)
@@ -89,24 +77,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
 
   const currency = summary?.currency ?? 'INR'
   const netWorth = summary?.total ?? 0
-=======
-  // Placeholder financial data — will be replaced with real backend data
-  const netWorth = 24850.0;
-  const assets = [
-    { name: "HDFC Bank", type: "Bank", balance: 12400.0 },
-    { name: "Zerodha Portfolio", type: "Stock", balance: 8200.0 },
-    { name: "Bitcoin", type: "Crypto", balance: 2100.0 },
-    { name: "Cash", type: "Cash", balance: 2150.0 },
-  ];
-  const monthlyChange = +3.2;
-
-  const assetTypeColors: Record<string, string> = {
-    Bank: "bg-blue-500/20 text-blue-400 border-blue-500/20",
-    Stock: "bg-emerald-500/20 text-emerald-400 border-emerald-500/20",
-    Crypto: "bg-orange-500/20 text-orange-400 border-orange-500/20",
-    Cash: "bg-purple-500/20 text-purple-400 border-purple-500/20",
-  };
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 
   return (
     <div className="min-h-screen bg-black flex">
@@ -185,7 +155,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
             </p>
             <div className="flex items-end gap-4 flex-wrap">
               <span className="text-6xl font-bold text-white tracking-tight">
-<<<<<<< HEAD
                 {formatCurrency(netWorth, currency)}
               </span>
             </div>
@@ -195,23 +164,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
             {summary && summary.total > 0 && (
               <div className="mt-6"><CategoryDonut data={summary.by_category} /></div>
             )}
-=======
-                ${netWorth.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-              </span>
-              <span
-                className={`mb-2 inline-flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full ${
-                  monthlyChange >= 0
-                    ? "bg-emerald-500/15 text-emerald-400"
-                    : "bg-red-500/15 text-red-400"
-                }`}
-              >
-                {monthlyChange >= 0 ? "▲" : "▼"} {Math.abs(monthlyChange)}% this month
-              </span>
-            </div>
-            <p className="text-sm text-white/30 mt-3">
-              Across {assets.length} assets
-            </p>
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
           </div>
 
           {/* Assets section */}
@@ -225,7 +177,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
                 Manage →
               </Link>
             </div>
-<<<<<<< HEAD
             {assetList.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
                 <p className="text-white/60">Add assets to get started.</p>
@@ -255,36 +206,6 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
                 ))}
               </div>
             )}
-=======
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {assets.map((asset) => (
-                <div
-                  key={asset.name}
-                  className="rounded-xl bg-white/[0.03] border border-white/8 p-5 hover:bg-white/[0.05] transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-medium text-white/80 truncate">
-                      {asset.name}
-                    </span>
-                    <span
-                      className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
-                        assetTypeColors[asset.type] ??
-                        "bg-white/10 text-white/50 border-white/10"
-                      }`}
-                    >
-                      {asset.type}
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-white tracking-tight">
-                    ${asset.balance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </p>
-                  <p className="text-xs text-white/30 mt-1">
-                    {((asset.balance / netWorth) * 100).toFixed(1)}% of total
-                  </p>
-                </div>
-              ))}
-            </div>
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
           </section>
 
           {/* Quick actions */}
@@ -293,26 +214,17 @@ export default function DashboardClient({ firstName, email }: DashboardClientPro
               Quick Actions
             </h2>
             <div className="flex flex-wrap gap-3">
-<<<<<<< HEAD
               <QuickActionLink href="/assets" label="Add Asset" />
               <QuickAction label="Log Expense" onClick={() => setExpenseFormOpen(true)} />
               <QuickActionLink href="/analytics" label="View Reports" />
-=======
-              <QuickAction label="Add Asset" />
-              <QuickAction label="Log Expense" />
-              <QuickAction label="View Reports" />
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
             </div>
           </section>
         </div>
       </main>
-<<<<<<< HEAD
 
       {expenseFormOpen && (
         <ExpenseForm onSubmit={logExpense} onClose={() => setExpenseFormOpen(false)} />
       )}
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
     </div>
   );
 }
@@ -343,24 +255,17 @@ function NavItem({
   );
 }
 
-<<<<<<< HEAD
 const quickActionClass =
   "px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white/70 hover:text-white transition-all";
 
 function QuickAction({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button onClick={onClick} className={quickActionClass}>
-=======
-function QuickAction({ label }: { label: string }) {
-  return (
-    <button className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white/70 hover:text-white transition-all">
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
       {label}
     </button>
   );
 }
 
-<<<<<<< HEAD
 function QuickActionLink({ href, label }: { href: string; label: string }) {
   return (
     <Link href={href} className={quickActionClass}>
@@ -369,8 +274,6 @@ function QuickActionLink({ href, label }: { href: string; label: string }) {
   );
 }
 
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 function IconGrid() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>

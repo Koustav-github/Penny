@@ -1,11 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
-<<<<<<< HEAD
 import Link from 'next/link'
 import SidebarSignOut from './SidebarSignOut'
-=======
-import { SignOutButton } from '@clerk/nextjs'
-import Link from 'next/link'
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: <IconGrid /> },
@@ -58,19 +53,7 @@ export async function AppSidebar({ active }: { active: string }) {
             <span className="text-xs text-white/40 truncate">{email}</span>
           </div>
         </div>
-<<<<<<< HEAD
         <SidebarSignOut />
-=======
-        <SignOutButton redirectUrl="/">
-          <button
-            type="button"
-            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors text-left"
-          >
-            <IconSignOut />
-            Sign out
-          </button>
-        </SignOutButton>
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
       </div>
     </aside>
   )
@@ -111,13 +94,3 @@ function IconChart() {
   )
 }
 
-<<<<<<< HEAD
-=======
-function IconSignOut() {
-  return (
-    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-    </svg>
-  )
-}
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
