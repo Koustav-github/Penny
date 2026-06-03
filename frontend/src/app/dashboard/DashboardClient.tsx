@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api, type ExpenseInput } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { CATEGORIES, type Asset, type AssetSummary } from "@/lib/assets";
+import { categoryLabel, type ExpenseSummary } from "@/lib/expenses";
 import CategoryDonut from "@/components/CategoryDonut";
 import ExpenseForm from "@/components/ExpenseForm";
 
@@ -13,298 +14,285 @@ interface DashboardClientProps {
   email: string;
 }
 
-export default function DashboardClient({ firstName, email }: DashboardClientProps) {
+export default function DashboardClient({ firstName }: DashboardClientProps) {
   const { isLoaded, isSignedIn, user } = useUser();
-  const { getToken, signOut } = useAuth();
+  const { getToken } = useAuth();
 
-  const SignOut = async () => {
-    const token = await getToken()
-    try{
-      await fetch("http://localhost:8000/users/signout",{
-      method: "POST",
-      headers: {Authorization: `Bearer ${token}`},
-    })
-    }
-    catch(error){
-      console.error("An error occurred while signing out: ", error);
-    }
-    // Clear the Clerk session, then redirect. Without this the session
-    // cookie persists and the middleware sends you back to /dashboard.
-    await signOut({ redirectUrl: "/" });
-  }
+  const [summary, setSummary] = useState<AssetSummary | null>(null);
+  const [assetList, setAssetList] = useState<Asset[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseSummary | null>(null);
+  const [expenseFormOpen, setExpenseFormOpen] = useState(false);
+
+  const reload = async () => {
+    const [s, a, e] = await Promise.all([
+      api.summary(getToken),
+      api.listAssets(getToken),
+      api.expenseSummary(getToken),
+    ]);
+    setSummary(s);
+    setAssetList(a);
+    setExpenses(e);
+  };
+
+  const logExpense = async (input: ExpenseInput) => {
+    await api.createExpense(getToken, input);
+    await reload();
+  };
+
   useEffect(() => {
-    const syncUser = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/users/sync", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            clerk_id: user?.id,
-            email: user?.primaryEmailAddress?.emailAddress,
-          }),
-        });
-        console.log(res);
-      } catch (error) {
-        console.error("Failed to sync user:", error);
-      }
-    };
-
     if (isLoaded && isSignedIn) {
-      syncUser();
+      fetch("http://localhost:8000/users/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clerk_id: user?.id,
+          email: user?.primaryEmailAddress?.emailAddress,
+        }),
+      }).catch((error) => console.error("Failed to sync user:", error));
     }
   }, [isLoaded, isSignedIn, user]);
 
-  const [summary, setSummary] = useState<AssetSummary | null>(null)
-  const [assetList, setAssetList] = useState<Asset[]>([])
-  const [expenseFormOpen, setExpenseFormOpen] = useState(false)
-
-  const logExpense = async (input: ExpenseInput) => {
-    await api.createExpense(getToken, input)
-  }
-
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) return
-    ;(async () => {
-      try {
-        const [s, a] = await Promise.all([api.summary(getToken), api.listAssets(getToken)])
-        setSummary(s)
-        setAssetList(a)
-      } catch (e) {
-        console.error('Failed to load dashboard data', e)
-      }
-    })()
-  }, [isLoaded, isSignedIn, getToken])
+    if (!isLoaded || !isSignedIn) return;
+    reload().catch((e) => console.error("Failed to load dashboard data", e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, isSignedIn, getToken]);
 
-  const currency = summary?.currency ?? 'INR'
-  const netWorth = summary?.total ?? 0
+  const currency = summary?.currency ?? "INR";
+  const netWorth = summary?.total ?? 0;
+  const monthly = expenses?.monthly ?? [];
+  const maxMonthly = Math.max(1, ...monthly.map((m) => m.total));
+  const topCategory = expenses?.by_category?.[0];
+  const greeting = greetingForNow();
 
   return (
-    <div className="min-h-screen bg-black flex">
-      {/* Background glow */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary/10 blur-[180px] rounded-full pointer-events-none -z-0" />
-
-      {/* Sidebar */}
-      <aside className="w-60 min-h-screen border-r border-white/5 bg-white/[0.02] flex flex-col px-4 py-6 shrink-0 relative z-10">
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-10 px-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-black font-bold text-xl">
-            P
-          </div>
-          <span className="text-xl font-bold tracking-tight text-white/90">
-            Penny
+    <main className="flex-1 flex flex-col min-h-screen relative z-10">
+      {/* Top bar */}
+      <header className="flex items-center justify-between px-8 py-5 border-b border-border">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ink tracking-tight">
+            {greeting}, {firstName}
+          </h1>
+          <p className="text-sm text-muted mt-0.5">
+            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border text-xs text-muted font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            Live
           </span>
+          <Link
+            href="/ai-reports"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5"
+          >
+            <SparkIcon /> Generate AI report
+          </Link>
         </div>
+      </header>
 
-        {/* Nav */}
-        <nav className="flex flex-col gap-1 flex-1">
-          <NavItem href="/dashboard" label="Dashboard" active icon={<IconGrid />} />
-          <NavItem href="/assets" label="Assets" icon={<IconWallet />} />
-          <NavItem href="/expenses" label="Expenses" icon={<IconReceipt />} />
-          <NavItem href="/analytics" label="Analytics" icon={<IconChart />} />
-        </nav>
+      <div className="flex-1 px-8 py-8 space-y-6">
+        {/* Hero row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Net worth */}
+          <div className="lg:col-span-2 relative rounded-3xl bg-surface border border-border p-8 overflow-hidden animate-rise">
+            <div className="absolute -top-24 -right-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold text-faint uppercase tracking-[0.18em] mb-2">Total Net Worth</p>
+                <p className="font-display text-5xl md:text-6xl font-extrabold text-ink tracking-tight tabular-nums">
+                  {formatCurrency(netWorth, currency)}
+                </p>
+                <p className="text-sm text-muted mt-3">
+                  Across {assetList.length} asset{assetList.length === 1 ? "" : "s"} · {summary?.by_category.length ?? 0} categories
+                </p>
+              </div>
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-positive/15 text-positive text-xs font-semibold">
+                <SparkIcon /> Tracked
+              </div>
+            </div>
 
-        {/* User footer */}
-        <div className="border-t border-white/5 pt-4 mt-4">
-          <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
-              {firstName.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium text-white/90 truncate">
-                {firstName}
-              </span>
-              <span className="text-xs text-white/40 truncate">{email}</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 flex flex-col min-h-screen relative z-10">
-        {/* Top bar */}
-        <header className="flex items-center justify-between px-8 py-5 border-b border-white/5">
-          <div>
-            <h1 className="text-xl font-semibold text-white">
-              Good morning, {firstName}
-            </h1>
-            <p className="text-sm text-white/40 mt-0.5">
-              Here&apos;s your financial overview
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Live
-            </div>
-            <button
-              onClick={SignOut}
-              className="text-xs text-white/40 hover:text-white/70 transition-colors px-3 py-1.5 rounded-full hover:bg-white/5"
-            >
-              Sign out
-            </button>
-          </div>
-        </header>
-
-        {/* Dashboard body */}
-        <div className="flex-1 px-8 py-8 space-y-8">
-          {/* Net worth card */}
-          <div className="relative rounded-2xl bg-white/[0.03] border border-white/8 p-8 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-            <p className="text-sm font-medium text-white/50 uppercase tracking-widest mb-2">
-              Net Worth
-            </p>
-            <div className="flex items-end gap-4 flex-wrap">
-              <span className="text-6xl font-bold text-white tracking-tight">
-                {formatCurrency(netWorth, currency)}
-              </span>
-            </div>
-            <p className="text-sm text-white/30 mt-3">
-              Across {assetList.length} assets
-            </p>
-            {summary && summary.total > 0 && (
-              <div className="mt-6"><CategoryDonut data={summary.by_category} /></div>
+            {summary && summary.total > 0 ? (
+              <div className="mt-8 pt-6 border-t border-border">
+                <CategoryDonut data={summary.by_category} />
+              </div>
+            ) : (
+              <div className="mt-8 pt-6 border-t border-border">
+                <p className="text-sm text-muted">
+                  No assets yet —{" "}
+                  <Link href="/assets" className="text-accent font-medium hover:underline">
+                    add your first asset
+                  </Link>{" "}
+                  to start tracking your net worth.
+                </p>
+              </div>
             )}
           </div>
 
-          {/* Assets section */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white/80">Assets</h2>
-              <Link
-                href="/assets"
-                className="text-xs text-primary hover:text-primary-hover transition-colors font-medium"
-              >
-                Manage →
-              </Link>
+          {/* AI insight teaser */}
+          <div className="relative rounded-3xl border border-border bg-linear-to-b from-accent/8 to-transparent p-6 flex flex-col overflow-hidden animate-rise" style={{ animationDelay: "80ms" }}>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/15 text-accent">
+                <SparkIcon />
+              </span>
+              <span className="text-sm font-semibold text-ink">Penny AI</span>
             </div>
-            {assetList.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
-                <p className="text-white/60">Add assets to get started.</p>
+            <p className="font-display text-lg font-semibold text-ink leading-snug">
+              {topCategory
+                ? `${categoryLabel(topCategory.category)} is your biggest spend this month at ${topCategory.pct}%.`
+                : "Log some expenses and I'll surface where your money goes."}
+            </p>
+            <p className="text-sm text-muted mt-2 flex-1">
+              Get a full AI breakdown of your spending, savings rate, and tailored suggestions.
+            </p>
+            <Link
+              href="/ai-reports"
+              className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border-strong text-sm font-semibold text-ink hover:bg-surface-2 transition-colors"
+            >
+              Open AI Reports →
+            </Link>
+          </div>
+        </div>
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="This Month Spent" value={formatCurrency(expenses?.total ?? 0, currency)} sub={`${expenses?.count ?? 0} transactions`} />
+          <StatCard label="Top Category" value={topCategory ? categoryLabel(topCategory.category) : "—"} sub={topCategory ? `${topCategory.pct}% of spend` : "No data"} />
+          <StatCard label="Assets Tracked" value={String(assetList.length)} sub={`${summary?.by_category.length ?? 0} categories`} />
+          <StatCard label="Net Worth" value={formatCurrency(netWorth, currency)} sub={currency} accent />
+        </div>
+
+        {/* Spending trend + assets */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Mini spend chart */}
+          <div className="rounded-3xl bg-surface border border-border p-6">
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-sm font-semibold text-ink">Spending — last 6 months</p>
+              <Link href="/analytics" className="text-xs text-accent font-medium hover:underline">Analytics →</Link>
+            </div>
+            {monthly.some((m) => m.total > 0) ? (
+              <div className="flex items-end gap-2.5 h-32">
+                {monthly.map((m, i) => {
+                  const h = (m.total / maxMonthly) * 100;
+                  const last = i === monthly.length - 1;
+                  return (
+                    <div key={m.month} className="flex-1 flex flex-col items-center gap-2">
+                      <div className="w-full flex items-end" style={{ height: "88px" }}>
+                        <div
+                          className={`w-full rounded-t-lg origin-bottom ${last ? "bg-accent" : "bg-border-strong"}`}
+                          style={{ height: `${h}%`, animation: "penny-grow-bar 0.6s cubic-bezier(0.16,1,0.3,1) both", animationDelay: `${i * 60}ms` }}
+                        />
+                      </div>
+                      <span className="text-[11px] text-faint">{monthShort(m.month)}</span>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {assetList.map((a) => (
-                  <div
-                    key={a.id}
-                    className="rounded-xl bg-white/[0.03] border border-white/8 p-5 hover:bg-white/[0.05] transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-medium text-white/80 truncate">
-                        {a.name}
+              <p className="text-sm text-muted">Log expenses to see your spending trend.</p>
+            )}
+          </div>
+
+          {/* Assets list */}
+          <div className="lg:col-span-2 rounded-3xl bg-surface border border-border overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <p className="text-sm font-semibold text-ink">Your Assets</p>
+              <Link href="/assets" className="text-xs text-accent font-medium hover:underline">Manage →</Link>
+            </div>
+            {assetList.length === 0 ? (
+              <div className="p-10 text-center">
+                <p className="text-muted text-sm">Add assets to see them here.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border max-h-72 overflow-auto">
+                {assetList.slice(0, 6).map((a) => (
+                  <div key={a.id} className="flex items-center justify-between px-6 py-3.5 hover:bg-surface-2 transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-2 border border-border text-sm font-bold text-muted shrink-0">
+                        {a.name.charAt(0).toUpperCase()}
                       </span>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border bg-white/10 text-white/50 border-white/10">
-                        {CATEGORIES.find((c) => c.value === a.category)?.label ?? a.category}
-                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-ink truncate">{a.name}</p>
+                        <p className="text-xs text-faint">{CATEGORIES.find((c) => c.value === a.category)?.label ?? a.category}</p>
+                      </div>
                     </div>
-                    <p className="text-2xl font-bold text-white tracking-tight">
-                      {formatCurrency(a.value, currency)}
-                    </p>
-                    <p className="text-xs text-white/30 mt-1">
-                      {netWorth > 0 ? ((a.value / netWorth) * 100).toFixed(1) : '0.0'}% of total
-                    </p>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</p>
+                      <p className="text-xs text-faint">{netWorth > 0 ? ((a.value / netWorth) * 100).toFixed(1) : "0.0"}%</p>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
-          </section>
-
-          {/* Quick actions */}
-          <section>
-            <h2 className="text-base font-semibold text-white/80 mb-4">
-              Quick Actions
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              <QuickActionLink href="/assets" label="Add Asset" />
-              <QuickAction label="Log Expense" onClick={() => setExpenseFormOpen(true)} />
-              <QuickActionLink href="/analytics" label="View Reports" />
-            </div>
-          </section>
+          </div>
         </div>
-      </main>
+
+        {/* Quick actions */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setExpenseFormOpen(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all hover:-translate-y-0.5"
+          >
+            <PlusIcon /> Log Expense
+          </button>
+          <QuickLink href="/assets" label="Add Asset" />
+          <QuickLink href="/analytics" label="View Analytics" />
+          <QuickLink href="/ai-reports" label="AI Reports" />
+        </div>
+      </div>
 
       {expenseFormOpen && (
         <ExpenseForm onSubmit={logExpense} onClose={() => setExpenseFormOpen(false)} />
       )}
+    </main>
+  );
+}
+
+function StatCard({ label, value, sub, accent }: { label: string; value: string; sub: string; accent?: boolean }) {
+  return (
+    <div className={`rounded-2xl border p-5 ${accent ? "bg-accent/10 border-accent/25" : "bg-surface border-border"}`}>
+      <p className="text-[11px] font-semibold text-faint uppercase tracking-[0.16em] mb-2">{label}</p>
+      <p className="font-display text-xl font-bold text-ink tracking-tight truncate tabular-nums">{value}</p>
+      <p className="text-xs text-muted mt-1 truncate">{sub}</p>
     </div>
   );
 }
 
-function NavItem({
-  href,
-  label,
-  icon,
-  active,
-}: {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  active?: boolean;
-}) {
+function QuickLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-        active
-          ? "bg-primary/10 text-primary"
-          : "text-white/50 hover:text-white/80 hover:bg-white/5"
-      }`}
+      className="inline-flex items-center px-5 py-2.5 rounded-full bg-surface hover:bg-surface-2 border border-border text-sm font-medium text-muted hover:text-ink transition-all"
     >
-      {icon}
       {label}
     </Link>
   );
 }
 
-const quickActionClass =
-  "px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white/70 hover:text-white transition-all";
-
-function QuickAction({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className={quickActionClass}>
-      {label}
-    </button>
-  );
+function greetingForNow() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
 }
 
-function QuickActionLink({ href, label }: { href: string; label: string }) {
-  return (
-    <Link href={href} className={quickActionClass}>
-      {label}
-    </Link>
-  );
+function monthShort(month: string) {
+  const [y, m] = month.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleString("en-US", { month: "short" });
 }
 
-function IconGrid() {
+function SparkIcon() {
   return (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-      <rect x="14" y="14" width="7" height="7" rx="1" />
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
     </svg>
   );
 }
 
-function IconWallet() {
+function PlusIcon() {
   return (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-    </svg>
-  );
-}
-
-function IconReceipt() {
-  return (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" />
-    </svg>
-  );
-}
-
-function IconChart() {
-  return (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
     </svg>
   );
 }

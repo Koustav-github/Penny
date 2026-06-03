@@ -53,38 +53,35 @@ export default function ExpensesClient() {
   const topCategories = (summary?.by_category ?? []).slice(0, 4)
 
   return (
-    <div className="flex-1 px-8 py-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-white/40">
+    <div className="flex-1 px-8 py-8 space-y-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <p className="text-sm text-muted">
           {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
         </p>
         <button
           onClick={() => { setEditing(undefined); setFormOpen(true) }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-black text-sm font-semibold transition-all shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Log Expense
+          <PlusIcon /> Log Expense
         </button>
       </div>
 
       {error && (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-300">{error}</div>
+        <div className="rounded-xl bg-negative/10 border border-negative/25 px-3 py-2 text-sm text-negative">{error}</div>
       )}
 
       {/* Summary row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 p-6">
-          <p className="text-xs font-medium text-white/40 uppercase tracking-widest mb-2">This Month</p>
-          <p className="text-4xl font-bold text-white tracking-tight">{formatCurrency(monthTotal, currency)}</p>
-          <p className="text-xs text-white/30 mt-2">{summary?.count ?? 0} transactions</p>
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <p className="text-xs font-semibold text-faint uppercase tracking-[0.16em] mb-2">This Month</p>
+          <p className="font-display text-4xl font-extrabold text-ink tracking-tight tabular-nums">{formatCurrency(monthTotal, currency)}</p>
+          <p className="text-xs text-muted mt-2">{summary?.count ?? 0} transactions</p>
         </div>
 
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 p-6 sm:col-span-2">
-          <p className="text-xs font-medium text-white/40 uppercase tracking-widest mb-4">Top Categories</p>
+        <div className="rounded-3xl bg-surface border border-border p-6 sm:col-span-2">
+          <p className="text-xs font-semibold text-faint uppercase tracking-[0.16em] mb-4">Top Categories</p>
           {topCategories.length === 0 ? (
-            <p className="text-sm text-white/30">No spending logged this month yet.</p>
+            <p className="text-sm text-muted">No spending logged this month yet.</p>
           ) : (
             <div className="space-y-3">
               {topCategories.map((c) => (
@@ -92,10 +89,10 @@ export default function ExpensesClient() {
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border w-28 text-center truncate ${EXPENSE_CATEGORY_COLORS[c.category]}`}>
                     {categoryLabel(c.category)}
                   </span>
-                  <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary/60 rounded-full" style={{ width: `${c.pct}%` }} />
+                  <div className="flex-1 h-1.5 bg-surface-2 rounded-full overflow-hidden">
+                    <div className="h-full bg-accent rounded-full" style={{ width: `${c.pct}%` }} />
                   </div>
-                  <span className="text-xs text-white/60 font-medium w-20 text-right">
+                  <span className="text-xs text-muted font-medium w-20 text-right tabular-nums">
                     {formatCurrency(c.total, currency)}
                   </span>
                 </div>
@@ -107,27 +104,27 @@ export default function ExpensesClient() {
 
       {/* Expense list */}
       {loading ? (
-        <p className="text-white/40 text-sm">Loading…</p>
+        <p className="text-muted text-sm">Loading…</p>
       ) : expenses.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
-          <p className="text-white/60">No expenses yet — log your first to start tracking your spending.</p>
+        <div className="rounded-3xl border border-dashed border-border-strong p-12 text-center">
+          <p className="text-muted">No expenses yet — log your first to start tracking your spending.</p>
         </div>
       ) : (
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 overflow-hidden">
-          <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-            <p className="text-sm font-semibold text-white/80">Transactions</p>
-            <span className="text-xs text-white/40">{expenses.length} entries</span>
+        <div className="rounded-3xl bg-surface border border-border overflow-hidden">
+          <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+            <p className="text-sm font-semibold text-ink">Transactions</p>
+            <span className="text-xs text-faint">{expenses.length} entries</span>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-border">
             {expenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.02] transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-sm font-bold text-white/60">
+              <div key={expense.id} className="flex items-center justify-between px-6 py-4 hover:bg-surface-2 transition-colors group">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-surface-2 border border-border text-sm font-bold text-muted shrink-0">
                     {expense.name.charAt(0).toUpperCase()}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-white/90">{expense.name}</p>
-                    <p className="text-xs text-white/35">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-ink truncate">{expense.name}</p>
+                    <p className="text-xs text-faint">
                       {formatExpenseDate(expense.spent_on)}{expense.note ? ` · ${expense.note}` : ''}
                     </p>
                   </div>
@@ -136,12 +133,12 @@ export default function ExpensesClient() {
                   <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${EXPENSE_CATEGORY_COLORS[expense.category]}`}>
                     {categoryLabel(expense.category)}
                   </span>
-                  <span className="text-sm font-semibold text-white w-28 text-right">
+                  <span className="text-sm font-semibold text-ink w-28 text-right tabular-nums">
                     −{formatCurrency(expense.amount, currency)}
                   </span>
                   <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditing(expense); setFormOpen(true) }} className="text-xs text-white/40 hover:text-white/80">Edit</button>
-                    <button onClick={() => handleDelete(expense.id)} className="text-xs text-red-400/70 hover:text-red-400">Delete</button>
+                    <button onClick={() => { setEditing(expense); setFormOpen(true) }} className="text-xs text-muted hover:text-ink">Edit</button>
+                    <button onClick={() => handleDelete(expense.id)} className="text-xs text-negative/80 hover:text-negative">Delete</button>
                   </div>
                 </div>
               </div>
@@ -154,5 +151,13 @@ export default function ExpensesClient() {
         <ExpenseForm initial={editing} onSubmit={handleSubmit} onClose={() => setFormOpen(false)} />
       )}
     </div>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
   )
 }

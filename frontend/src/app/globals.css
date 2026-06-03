@@ -1,23 +1,165 @@
 @import "tailwindcss";
 
+/*
+  Penny design system — "Growin Fintech"
+  Dark is the default theme (no class on <html>). Light is opt-in via
+  `html.light`. Components style against the semantic tokens below so a single
+  class flip re-themes the whole app. Legacy `--primary` / `--background`
+  tokens are kept so not-yet-redesigned pages keep working.
+*/
+
 :root {
-  --background: #050505;
-  --foreground: #ededed;
+  color-scheme: dark;
+  /* surfaces */
+  --bg: #07080a;
+  --bg-elev: #0b0d11;
+  --surface: #0e1015;
+  --surface-2: #14171d;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* text */
+  --text: #f3f5f2;
+  --muted: rgba(243, 245, 242, 0.56);
+  --faint: rgba(243, 245, 242, 0.34);
+
+  /* brand */
+  --accent: #c4ff4d;          /* lime — the "Growin" signature */
+  --accent-press: #b1f028;
+  --accent-ink: #0b1400;      /* text/icon sitting on accent */
+  --emerald: #10b981;
+  --positive: #4ade80;
+  --negative: #fb7185;
+
+  /* effects */
+  --glow: rgba(196, 255, 77, 0.16);
+  --shadow: 0 24px 70px -28px rgba(0, 0, 0, 0.8);
+  --ring: rgba(196, 255, 77, 0.45);
+
+  /* legacy compatibility (older pages) */
+  --background: #07080a;
+  --foreground: #f3f5f2;
   --primary: #10b981;
   --primary-hover: #059669;
 }
 
+html.light {
+  color-scheme: light;
+  --bg: #eef1ea;
+  --bg-elev: #f6f8f2;
+  --surface: #ffffff;
+  --surface-2: #f3f5ee;
+  --border: rgba(12, 20, 4, 0.10);
+  --border-strong: rgba(12, 20, 4, 0.18);
+
+  --text: #0d1409;
+  --muted: rgba(13, 20, 9, 0.62);
+  --faint: rgba(13, 20, 9, 0.42);
+
+  --accent: #5fbf00;          /* deepened so lime stays legible on white */
+  --accent-press: #4fa300;
+  --accent-ink: #f6ffe6;
+  --emerald: #059669;
+  --positive: #16a34a;
+  --negative: #e11d48;
+
+  --glow: rgba(95, 191, 0, 0.18);
+  --shadow: 0 24px 60px -30px rgba(30, 50, 10, 0.30);
+  --ring: rgba(95, 191, 0, 0.45);
+
+  --background: #eef1ea;
+  --foreground: #0d1409;
+  --primary: #059669;
+  --primary-hover: #047857;
+}
+
 @theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elev: var(--bg-elev);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+
+  --color-accent: var(--accent);
+  --color-accent-press: var(--accent-press);
+  --color-accent-ink: var(--accent-ink);
+  --color-emerald: var(--emerald);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+
+  /* legacy */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --font-sans: var(--font-geist-sans);
+
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-geist);
   --font-mono: var(--font-geist-mono);
 }
 
+* {
+  border-color: var(--border);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist), system-ui, sans-serif;
+  transition: background-color 0.35s ease, color 0.35s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Thin, themed scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+@keyframes penny-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes penny-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes penny-grow-bar {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes penny-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes penny-spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-rise { animation: penny-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade { animation: penny-fade 0.8s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

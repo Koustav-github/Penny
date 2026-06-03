@@ -19,28 +19,24 @@ export default function AnalyticsClient() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        const [a, e] = await Promise.all([api.summary(getToken), api.expenseSummary(getToken)])
+    Promise.all([api.summary(getToken), api.expenseSummary(getToken)])
+      .then(([a, e]) => {
         setAssets(a)
         setExpenses(e)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load analytics')
-      } finally {
-        setLoading(false)
-      }
-    })()
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load analytics'))
+      .finally(() => setLoading(false))
   }, [getToken])
 
   const currency = assets?.currency ?? expenses?.currency ?? 'INR'
 
   if (loading) {
-    return <div className="flex-1 px-8 py-8"><p className="text-white/40 text-sm">Loading…</p></div>
+    return <div className="flex-1 px-8 py-8"><p className="text-muted text-sm">Loading…</p></div>
   }
   if (error) {
     return (
       <div className="flex-1 px-8 py-8">
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-300">{error}</div>
+        <div className="rounded-xl bg-negative/10 border border-negative/25 px-3 py-2 text-sm text-negative">{error}</div>
       </div>
     )
   }
@@ -63,20 +59,20 @@ export default function AnalyticsClient() {
   const hasSpend = monthsWithSpend.length > 0
 
   const kpis = [
-    { label: 'Net Worth', value: formatCurrency(netWorth, currency), sub: `Across ${allocation.length} categories` },
+    { label: 'Net Worth', value: formatCurrency(netWorth, currency), sub: `Across ${allocation.length} categories`, accent: true },
     { label: 'This Month', value: formatCurrency(thisMonthSpend, currency), sub: `${expenses?.count ?? 0} transactions` },
     { label: 'Avg Monthly Spend', value: formatCurrency(avgMonthly, currency), sub: 'Last 6 months' },
   ]
 
   return (
-    <div className="flex-1 px-8 py-8 space-y-8">
+    <div className="flex-1 px-8 py-8 space-y-6">
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {kpis.map((kpi) => (
-          <div key={kpi.label} className="rounded-xl bg-white/[0.03] border border-white/8 p-5">
-            <p className="text-xs font-medium text-white/40 uppercase tracking-widest mb-2">{kpi.label}</p>
-            <p className="text-2xl font-bold text-white">{kpi.value}</p>
-            <p className="text-xs text-white/30 mt-1">{kpi.sub}</p>
+          <div key={kpi.label} className={`rounded-3xl border p-6 ${kpi.accent ? 'bg-accent/10 border-accent/25' : 'bg-surface border-border'}`}>
+            <p className="text-xs font-semibold text-faint uppercase tracking-[0.16em] mb-2">{kpi.label}</p>
+            <p className="font-display text-2xl font-bold text-ink tracking-tight tabular-nums">{kpi.value}</p>
+            <p className="text-xs text-muted mt-1">{kpi.sub}</p>
           </div>
         ))}
       </div>
@@ -84,10 +80,10 @@ export default function AnalyticsClient() {
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly spending chart */}
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 p-6">
-          <p className="text-sm font-semibold text-white/80 mb-6">Monthly Spending</p>
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <p className="text-sm font-semibold text-ink mb-6">Monthly Spending</p>
           {!hasSpend ? (
-            <p className="text-sm text-white/30">Log expenses to see your monthly trend.</p>
+            <p className="text-sm text-muted">Log expenses to see your monthly trend.</p>
           ) : (
             <div className="flex items-end gap-3 h-32">
               {monthly.map((d, i) => {
@@ -95,13 +91,13 @@ export default function AnalyticsClient() {
                 const isLast = i === monthly.length - 1
                 return (
                   <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="w-full flex items-end" style={{ height: '64px' }}>
+                    <div className="w-full flex items-end" style={{ height: '88px' }}>
                       <div
-                        className={`w-full rounded-t-md ${isLast ? 'bg-primary/50' : 'bg-white/10'}`}
-                        style={{ height: `${heightPct}%` }}
+                        className={`w-full rounded-t-lg origin-bottom ${isLast ? 'bg-accent' : 'bg-border-strong'}`}
+                        style={{ height: `${heightPct}%`, animation: 'penny-grow-bar 0.6s cubic-bezier(0.16,1,0.3,1) both', animationDelay: `${i * 60}ms` }}
                       />
                     </div>
-                    <span className="text-xs text-white/40">{monthShortLabel(d.month)}</span>
+                    <span className="text-[11px] text-faint">{monthShortLabel(d.month)}</span>
                   </div>
                 )
               })}
@@ -110,24 +106,24 @@ export default function AnalyticsClient() {
         </div>
 
         {/* Asset allocation */}
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 p-6">
-          <p className="text-sm font-semibold text-white/80 mb-6">Asset Allocation</p>
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <p className="text-sm font-semibold text-ink mb-6">Asset Allocation</p>
           {!hasAssets ? (
-            <p className="text-sm text-white/30">Add assets to see your allocation.</p>
+            <p className="text-sm text-muted">Add assets to see your allocation.</p>
           ) : (
             <div className="space-y-4">
               {allocation.map((item) => (
                 <div key={item.category} className="flex items-center gap-3">
-                  <span className="text-xs text-white/50 w-16 shrink-0">
+                  <span className="text-xs text-muted w-16 shrink-0">
                     {CATEGORIES.find((c) => c.value === item.category)?.label ?? item.category}
                   </span>
-                  <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-surface-2 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${item.pct}%`, backgroundColor: CATEGORY_COLORS[item.category] }}
                     />
                   </div>
-                  <span className="text-xs font-semibold text-white/70 w-24 text-right">
+                  <span className="text-xs font-semibold text-ink w-24 text-right tabular-nums">
                     {formatCurrency(item.total, currency)}
                   </span>
                 </div>
@@ -138,21 +134,21 @@ export default function AnalyticsClient() {
       </div>
 
       {/* Spending by category */}
-      <div className="rounded-2xl bg-white/[0.03] border border-white/8 p-6">
-        <p className="text-sm font-semibold text-white/80 mb-6">
+      <div className="rounded-3xl bg-surface border border-border p-6">
+        <p className="text-sm font-semibold text-ink mb-6">
           Spending by Category — {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
         </p>
         {byCategory.length === 0 ? (
-          <p className="text-sm text-white/30">No spending logged this month yet.</p>
+          <p className="text-sm text-muted">No spending logged this month yet.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {byCategory.map((item) => (
               <div key={item.category} className="flex items-center gap-3">
-                <span className="text-xs text-white/50 w-24 shrink-0">{categoryLabel(item.category)}</span>
-                <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary/50 rounded-full" style={{ width: `${(item.total / maxCategory) * 100}%` }} />
+                <span className="text-xs text-muted w-24 shrink-0">{categoryLabel(item.category)}</span>
+                <div className="flex-1 h-1.5 bg-surface-2 rounded-full overflow-hidden">
+                  <div className="h-full bg-accent rounded-full" style={{ width: `${(item.total / maxCategory) * 100}%` }} />
                 </div>
-                <span className="text-xs font-semibold text-white/70 w-20 text-right">
+                <span className="text-xs font-semibold text-ink w-20 text-right tabular-nums">
                   {formatCurrency(item.total, currency)}
                 </span>
               </div>

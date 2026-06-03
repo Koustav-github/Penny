@@ -15,7 +15,7 @@ export default function SidebarSignOut() {
     <button
       type="button"
       onClick={() => signOut({ redirectUrl: '/' })}
-      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors text-left"
+      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-faint hover:text-ink hover:bg-surface-2 transition-colors text-left"
     >
       <IconSignOut />
       Sign out

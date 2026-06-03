@@ -46,15 +46,15 @@ export default function ExpenseForm({ initial, onSubmit, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={submit}
-        className="w-full max-w-md rounded-2xl bg-[#0c0c0c] border border-white/10 p-6 flex flex-col gap-4"
+        className="w-full max-w-md rounded-3xl bg-surface border border-border-strong p-6 flex flex-col gap-4 shadow-[var(--shadow)] animate-rise"
       >
-        <h2 className="text-lg font-semibold text-white">{initial ? 'Edit expense' : 'Log expense'}</h2>
+        <h2 className="font-display text-xl font-bold text-ink">{initial ? 'Edit expense' : 'Log expense'}</h2>
         {error && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-300">
+          <div className="rounded-xl bg-negative/10 border border-negative/25 px-3 py-2 text-sm text-negative">
             {error}
           </div>
         )}
@@ -62,14 +62,14 @@ export default function ExpenseForm({ initial, onSubmit, onClose }: Props) {
         <Input label="Name" value={name} onChange={setName} placeholder="e.g. Swiggy, Uber, Netflix" required />
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-[13px] text-white/55">Category</span>
+          <span className="text-[13px] text-muted">Category</span>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-            className="rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm text-white outline-none"
+            className="rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink outline-none focus:border-border-strong"
           >
             {EXPENSE_CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value} className="bg-[#0c0c0c]">{c.label}</option>
+              <option key={c.value} value={c.value} className="bg-surface text-ink">{c.label}</option>
             ))}
           </select>
         </label>
@@ -81,10 +81,10 @@ export default function ExpenseForm({ initial, onSubmit, onClose }: Props) {
         <Input label="Note (optional)" value={note} onChange={setNote} placeholder="e.g. Dinner with friends" />
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 text-sm text-white/70">
+          <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-muted hover:text-ink transition-colors">
             Cancel
           </button>
-          <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-black font-semibold text-sm disabled:opacity-60">
+          <button type="submit" disabled={saving} className="flex-1 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-press text-accent-ink font-semibold text-sm disabled:opacity-60 transition-colors">
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -99,12 +99,12 @@ function Input({
   Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[13px] text-white/55">{label}</span>
+      <span className="text-[13px] text-muted">{label}</span>
       <input
         {...rest}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-primary/50"
+        className="rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:border-accent/60"
       />
     </label>
   )

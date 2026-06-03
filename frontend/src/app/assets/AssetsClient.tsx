@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { api, type AssetInput } from '@/lib/api'
 import { formatCurrency } from '@/lib/format'
-import { CATEGORIES, type Asset, type AssetSummary } from '@/lib/assets'
+import { CATEGORIES, CATEGORY_COLORS, type Asset, type AssetSummary } from '@/lib/assets'
 import AssetForm from '@/components/AssetForm'
 import CategoryDonut from '@/components/CategoryDonut'
 import CurrencySelect from '@/components/CurrencySelect'
@@ -45,13 +45,15 @@ export default function AssetsClient() {
   }
 
   const currency = summary?.currency ?? 'INR'
+  const total = summary?.total ?? 0
 
   return (
-    <div className="flex-1 px-8 py-8 space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 px-8 py-8 space-y-6">
+      {/* Total + actions */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-sm font-medium text-white/50 uppercase tracking-widest">Total</p>
-          <p className="text-4xl font-bold text-white">{formatCurrency(summary?.total ?? 0, currency)}</p>
+          <p className="text-xs font-semibold text-faint uppercase tracking-[0.16em]">Total Value</p>
+          <p className="font-display text-4xl font-extrabold text-ink tracking-tight tabular-nums">{formatCurrency(total, currency)}</p>
         </div>
         <div className="flex items-center gap-3">
           <CurrencySelect
@@ -60,43 +62,53 @@ export default function AssetsClient() {
           />
           <button
             onClick={() => { setEditing(undefined); setFormOpen(true) }}
-            className="px-4 py-2 rounded-full bg-primary text-black text-sm font-semibold"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5"
           >
-            + Add Asset
+            <PlusIcon /> Add Asset
           </button>
         </div>
       </div>
 
-      {error && <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-300">{error}</div>}
+      {error && (
+        <div className="rounded-xl bg-negative/10 border border-negative/25 px-3 py-2 text-sm text-negative">{error}</div>
+      )}
 
       {!loading && summary && summary.total > 0 && (
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 p-6">
+        <div className="rounded-3xl bg-surface border border-border p-6">
           <CategoryDonut data={summary.by_category} />
         </div>
       )}
 
       {loading ? (
-        <p className="text-white/40 text-sm">Loading…</p>
+        <p className="text-muted text-sm">Loading…</p>
       ) : assets.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
-          <p className="text-white/60">No assets yet — add your first to see it on your dashboard.</p>
+        <div className="rounded-3xl border border-dashed border-border-strong p-12 text-center">
+          <p className="text-muted">No assets yet — add your first to see it on your dashboard.</p>
         </div>
       ) : (
-        <div className="rounded-2xl bg-white/[0.03] border border-white/8 divide-y divide-white/5">
+        <div className="rounded-3xl bg-surface border border-border divide-y divide-border overflow-hidden">
           {assets.map((a) => {
             const label = CATEGORIES.find((c) => c.value === a.category)?.label ?? a.category
             return (
-              <div key={a.id} className="flex items-center justify-between px-6 py-4">
-                <div>
-                  <p className="text-sm font-medium text-white/90">{a.name}</p>
-                  <p className="text-xs text-white/40">
-                    {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}
-                  </p>
+              <div key={a.id} className="group flex items-center justify-between px-6 py-4 hover:bg-surface-2 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className="h-9 w-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: CATEGORY_COLORS[a.category] }}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-ink truncate">{a.name}</p>
+                    <p className="text-xs text-faint">
+                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-semibold text-white">{formatCurrency(a.value, currency)}</span>
-                  <button onClick={() => { setEditing(a); setFormOpen(true) }} className="text-xs text-white/40 hover:text-white/80">Edit</button>
-                  <button onClick={() => handleDelete(a.id)} className="text-xs text-red-400/70 hover:text-red-400">Delete</button>
+                  <span className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</span>
+                  <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => { setEditing(a); setFormOpen(true) }} className="text-xs text-muted hover:text-ink">Edit</button>
+                    <button onClick={() => handleDelete(a.id)} className="text-xs text-negative/80 hover:text-negative">Delete</button>
+                  </div>
                 </div>
               </div>
             )
@@ -108,5 +120,13 @@ export default function AssetsClient() {
         <AssetForm initial={editing} onSubmit={handleSubmit} onClose={() => setFormOpen(false)} />
       )}
     </div>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
   )
 }

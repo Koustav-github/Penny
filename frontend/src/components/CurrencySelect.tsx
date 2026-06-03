@@ -15,9 +15,9 @@ export default function CurrencySelect({ value, onChange }: { value: string; onC
         onChange(c)
         try { await api.updateCurrency(getToken, c) } catch (err) { console.error(err) }
       }}
-      className="rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white outline-none"
+      className="rounded-xl bg-surface-2 border border-border px-3 py-2 text-sm text-ink outline-none focus:border-border-strong"
     >
-      {CURRENCIES.map((c) => <option key={c} value={c} className="bg-[#0c0c0c]">{c}</option>)}
+      {CURRENCIES.map((c) => <option key={c} value={c} className="bg-surface text-ink">{c}</option>)}
     </select>
   )
 }
