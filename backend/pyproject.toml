@@ -1,0 +1,34 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.18.4",
+    "clerk-backend-api>=5.0.6",
+    "fastapi>=0.135.2",
+<<<<<<< HEAD
+    "httpx>=0.28.1",
+=======
+>>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
+    "langchain>=1.2.14",
+    "langgraph>=1.1.4",
+    "langsmith>=0.7.24",
+    "psycopg2>=2.9.11",
+    "pydantic[email]>=2.12.5",
+    "python-dotenv>=1.2.2",
+    "sqlalchemy>=2.0.48",
+]
+<<<<<<< HEAD
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+=======
+>>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9

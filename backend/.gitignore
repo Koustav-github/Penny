@@ -1,0 +1,11 @@
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+.env
+<<<<<<< HEAD
+.env.example
+=======
+>>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
+alembic.ini
