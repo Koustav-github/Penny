@@ -1,5 +1,6 @@
 import type { Asset, AssetSummary, Category } from './assets'
 import type { Expense, ExpenseCategory, ExpenseSummary } from './expenses'
+import type { Profile, ProfileInput, Report, ReportType } from './reports'
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
@@ -68,4 +69,11 @@ export const api = {
     req<Me>(g, '/users/me', { method: 'PATCH', body: JSON.stringify({ currency }) }),
   updateSalary: (g: TokenGetter, monthly_salary: number) =>
     req<Me>(g, '/users/me', { method: 'PATCH', body: JSON.stringify({ monthly_salary }) }),
+  getProfile: (g: TokenGetter) => req<Profile>(g, '/users/profile'),
+  updateProfile: (g: TokenGetter, body: ProfileInput) =>
+    req<Profile>(g, '/users/profile', { method: 'PUT', body: JSON.stringify(body) }),
+  aiConsent: (g: TokenGetter) => req<Profile>(g, '/users/ai-consent', { method: 'POST' }),
+  generateReport: (g: TokenGetter, body: { report_type: ReportType; period: string }) =>
+    req<Report>(g, '/reports/generate', { method: 'POST', body: JSON.stringify(body) }),
+  listReports: (g: TokenGetter) => req<Report[]>(g, '/reports'),
 }

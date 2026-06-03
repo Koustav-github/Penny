@@ -11,6 +11,7 @@ from routers import assets as assets_router
 from routers import users as users_router
 from routers import rates as rates_router
 from routers import expenses as expenses_router
+from routers import reports as reports_router
 
 load_dotenv()
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
@@ -23,6 +24,7 @@ app.include_router(assets_router.router)
 app.include_router(users_router.router)
 app.include_router(rates_router.router)
 app.include_router(expenses_router.router)
+app.include_router(reports_router.router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -3,60 +3,86 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "@/lib/api";
-import { formatCurrency } from "@/lib/format";
-import { type AssetSummary, CATEGORIES } from "@/lib/assets";
-import { categoryLabel, monthShortLabel, type ExpenseSummary } from "@/lib/expenses";
-
-type ReportType = "spending" | "networth" | "savings" | "investing";
-
-interface Insight {
-  tone: "good" | "warn" | "info";
-  title: string;
-  body: string;
-}
+import {
+  RISK_OPTIONS,
+  profileComplete,
+  type Profile,
+  type ProfileInput,
+  type Report,
+  type ReportType,
+  type RiskAppetite,
+} from "@/lib/reports";
 
 const REPORT_TYPES: { id: ReportType; label: string; desc: string; icon: React.ReactNode }[] = [
   { id: "spending", label: "Spending Breakdown", desc: "Where your money went and how to trim it", icon: <IconReceipt /> },
   { id: "networth", label: "Net-Worth Review", desc: "Your asset mix and concentration risk", icon: <IconChart /> },
-  { id: "savings", label: "Savings Strategy", desc: "A simple plan to save more each month", icon: <IconPig /> },
-  { id: "investing", label: "Investment Ideas", desc: "Allocation suggestions for your profile", icon: <IconSpark /> },
+  { id: "savings", label: "Savings Strategy", desc: "A plan to save more each month", icon: <IconPig /> },
+  { id: "investing", label: "Investment Ideas", desc: "Allocation for your risk profile", icon: <IconSpark /> },
 ];
 
 const PERIODS = ["This month", "Last 3 months", "Last 6 months", "Year to date"] as const;
 
 export default function AIReportsClient() {
   const { getToken } = useAuth();
-  const [assets, setAssets] = useState<AssetSummary | null>(null);
-  const [expenses, setExpenses] = useState<ExpenseSummary | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
   const [type, setType] = useState<ReportType>("spending");
   const [period, setPeriod] = useState<(typeof PERIODS)[number]>("This month");
   const [phase, setPhase] = useState<"idle" | "analyzing" | "done">("idle");
-  const [insights, setInsights] = useState<Insight[]>([]);
+  const [current, setCurrent] = useState<Report | null>(null);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([api.summary(getToken), api.expenseSummary(getToken)])
-      .then(([a, e]) => {
-        setAssets(a);
-        setExpenses(e);
+    Promise.all([api.getProfile(getToken), api.listReports(getToken)])
+      .then(([p, r]) => {
+        setProfile(p);
+        setReports(r);
       })
-      .catch((err) => console.error("Failed to load report data", err));
+      .catch((e) => console.error("Failed to load AI reports", e));
   }, [getToken]);
 
-  const currency = assets?.currency ?? expenses?.currency ?? "INR";
-  const hasData = (assets?.total ?? 0) > 0 || (expenses?.count ?? 0) > 0;
-
-  const generate = () => {
+  const runGenerate = async () => {
+    setError(null);
     setPhase("analyzing");
-    setInsights([]);
-    // Simulated "thinking" — the real LLM/RAG engine plugs in here later.
-    setTimeout(() => {
-      setInsights(buildInsights(type, assets, expenses, currency));
+    try {
+      const r = await api.generateReport(getToken, { report_type: type, period });
+      setCurrent(r);
+      setReports((prev) => [r, ...prev]);
       setPhase("done");
-    }, 1500);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to generate report");
+      setPhase("idle");
+    }
+  };
+
+  const onGenerate = () => {
+    if (!profile?.ai_consent) {
+      setConsentOpen(true);
+      return;
+    }
+    runGenerate();
+  };
+
+  const acceptConsent = async () => {
+    try {
+      const p = await api.aiConsent(getToken);
+      setProfile(p);
+      setConsentOpen(false);
+      runGenerate();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to record consent");
+      setConsentOpen(false);
+    }
   };
 
   return (
     <div className="flex-1 px-8 py-8 space-y-8 max-w-6xl">
+      {/* Profile setup */}
+      {profile && !profileComplete(profile) && (
+        <ProfilePanel profile={profile} onSaved={setProfile} />
+      )}
+
       {/* Builder */}
       <section className="rounded-3xl bg-surface border border-border p-6 sm:p-8 animate-rise">
         <p className="text-xs font-semibold text-faint uppercase tracking-[0.16em] mb-4">1 · Choose a report</p>
@@ -68,9 +94,7 @@ export default function AIReportsClient() {
                 key={r.id}
                 onClick={() => { setType(r.id); setPhase("idle"); }}
                 className={`text-left rounded-2xl border p-4 transition-all ${
-                  active
-                    ? "border-accent/50 bg-accent/10 ring-1 ring-accent/30"
-                    : "border-border bg-surface-2 hover:border-border-strong"
+                  active ? "border-accent/50 bg-accent/10 ring-1 ring-accent/30" : "border-border bg-surface-2 hover:border-border-strong"
                 }`}
               >
                 <span className={`grid h-9 w-9 place-items-center rounded-xl mb-3 ${active ? "bg-accent text-accent-ink" : "bg-surface text-muted"}`}>
@@ -90,9 +114,7 @@ export default function AIReportsClient() {
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-                period === p
-                  ? "bg-ink text-bg border-ink"
-                  : "bg-surface-2 text-muted border-border hover:text-ink"
+                period === p ? "bg-ink text-bg border-ink" : "bg-surface-2 text-muted border-border hover:text-ink"
               }`}
             >
               {p}
@@ -100,93 +122,188 @@ export default function AIReportsClient() {
           ))}
         </div>
 
+        {error && (
+          <div className="mt-6 rounded-xl bg-negative/10 border border-negative/25 px-3 py-2 text-sm text-negative">{error}</div>
+        )}
+
         <div className="mt-7 flex flex-wrap items-center gap-4">
           <button
-            onClick={generate}
-            disabled={phase === "analyzing" || !hasData}
+            onClick={onGenerate}
+            disabled={phase === "analyzing"}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent hover:bg-accent-press text-accent-ink font-semibold text-sm transition-all shadow-[0_0_28px_var(--glow)] hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {phase === "analyzing" ? <><Spinner /> Penny is analyzing…</> : <><IconSpark /> Generate report</>}
           </button>
-          {!hasData && (
-            <p className="text-xs text-muted">Add assets or log expenses first so Penny has something to analyze.</p>
-          )}
           <span className="text-xs text-faint">Period: {period}</span>
         </div>
       </section>
 
       {/* Output */}
       {phase === "analyzing" && <AnalyzingSkeleton />}
+      {phase === "done" && current && <ReportView report={current} />}
 
-      {phase === "done" && (
-        <section className="space-y-4 animate-fade">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold text-ink">
-              {REPORT_TYPES.find((r) => r.id === type)?.label}
-            </h2>
-            <span className="text-[11px] font-medium text-faint px-2.5 py-1 rounded-full bg-surface-2 border border-border">
-              Heuristic preview · full AI engine coming soon
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {insights.map((ins, i) => (
-              <InsightCard key={i} insight={ins} index={i} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* What Penny analyzes */}
-      <section>
-        <h2 className="font-display text-lg font-bold text-ink mb-4">What Penny looks at</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <FeatureCard icon={<IconChart />} title="Your full picture" body="Assets, allocation, expenses and monthly trends — all in one analysis." />
-          <FeatureCard icon={<IconBook />} title="Financial principles" body="Grounded in budgeting rules and investment fundamentals (RAG-based engine, coming soon)." />
-          <FeatureCard icon={<IconShield />} title="SEBI-aware by design" body="Penny suggests; you decide. Built toward compliant, advice-grade reporting." />
-        </div>
-      </section>
-
-      {/* History (empty for now) */}
+      {/* History */}
       <section>
         <h2 className="font-display text-lg font-bold text-ink mb-4">Past reports</h2>
-        <div className="rounded-2xl border border-dashed border-border-strong p-10 text-center">
-          <p className="text-sm text-muted">Your generated reports will be saved here once the AI engine is live.</p>
-        </div>
+        {reports.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border-strong p-10 text-center">
+            <p className="text-sm text-muted">Your generated reports will appear here.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {reports.map((r) => (
+              <button
+                key={r.id}
+                onClick={() => { setCurrent(r); setPhase("done"); }}
+                className="w-full flex items-center justify-between gap-3 rounded-2xl bg-surface border border-border px-5 py-3.5 text-left hover:border-border-strong transition-colors"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-ink">
+                    {REPORT_TYPES.find((t) => t.id === r.report_type)?.label ?? r.report_type}
+                    <span className="text-faint font-normal"> · {r.period}</span>
+                  </p>
+                  <p className="text-xs text-faint">{new Date(r.created_at).toLocaleString()} · {r.model === "heuristic" ? "heuristic preview" : "AI"}</p>
+                </div>
+                <span className="text-accent text-sm font-medium">View →</span>
+              </button>
+            ))}
+          </div>
+        )}
       </section>
+
+      {consentOpen && <ConsentModal onAccept={acceptConsent} onClose={() => setConsentOpen(false)} />}
     </div>
   );
 }
 
-function InsightCard({ insight, index }: { insight: Insight; index: number }) {
-  const toneStyles: Record<Insight["tone"], string> = {
-    good: "border-positive/30 bg-positive/8",
-    warn: "border-negative/30 bg-negative/8",
-    info: "border-border bg-surface",
-  };
-  const dot: Record<Insight["tone"], string> = {
-    good: "bg-positive",
-    warn: "bg-negative",
-    info: "bg-accent",
-  };
+function ReportView({ report }: { report: Report }) {
   return (
-    <div
-      className={`rounded-2xl border p-5 animate-rise ${toneStyles[insight.tone]}`}
-      style={{ animationDelay: `${index * 90}ms` }}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`h-2 w-2 rounded-full ${dot[insight.tone]}`} />
-        <p className="text-sm font-semibold text-ink">{insight.title}</p>
+    <section className="space-y-4 animate-fade">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h2 className="font-display text-xl font-bold text-ink">
+          {REPORT_TYPES.find((t) => t.id === report.report_type)?.label ?? report.report_type}
+        </h2>
+        <span className="text-[11px] font-medium text-faint px-2.5 py-1 rounded-full bg-surface-2 border border-border">
+          {report.model === "heuristic" ? "Heuristic preview · set GROQ_API_KEY for full AI" : `Generated by ${report.model}`}
+        </span>
       </div>
-      <p className="text-sm text-muted leading-relaxed">{insight.body}</p>
+      <div className="grid grid-cols-1 gap-4">
+        {report.sections.map((s, i) => (
+          <div key={s.key} className="rounded-2xl bg-surface border border-border p-6 animate-rise" style={{ animationDelay: `${i * 80}ms` }}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="h-2 w-2 rounded-full bg-accent" />
+              <h3 className="font-display text-base font-bold text-ink">{s.title}</h3>
+            </div>
+            <p className="text-sm text-muted leading-relaxed">{s.body}</p>
+            {s.bullets.length > 0 && (
+              <ul className="mt-3 space-y-1.5">
+                {s.bullets.map((b, j) => (
+                  <li key={j} className="flex gap-2 text-sm text-muted">
+                    <span className="text-accent mt-0.5 shrink-0">›</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-faint">{report.disclaimer}</p>
+    </section>
+  );
+}
+
+function ProfilePanel({ profile, onSaved }: { profile: Profile; onSaved: (p: Profile) => void }) {
+  const { getToken } = useAuth();
+  const [risk, setRisk] = useState<RiskAppetite>(profile.risk_appetite ?? "balanced");
+  const [savings, setSavings] = useState(profile.monthly_savings_target?.toString() ?? "");
+  const [horizon, setHorizon] = useState(profile.time_horizon_years?.toString() ?? "");
+  const [dependents, setDependents] = useState(profile.dependents?.toString() ?? "");
+  const [goals, setGoals] = useState<string[]>([profile.goals?.[0] ?? "", profile.goals?.[1] ?? "", profile.goals?.[2] ?? ""]);
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const body: ProfileInput = {
+      risk_appetite: risk,
+      monthly_savings_target: savings ? Number(savings) : null,
+      time_horizon_years: horizon ? Number(horizon) : null,
+      dependents: dependents ? Number(dependents) : null,
+      goals: goals.map((g) => g.trim()).filter(Boolean),
+    };
+    try {
+      onSaved(await api.updateProfile(getToken, body));
+    } catch (e) {
+      console.error("Failed to save profile", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="rounded-3xl border border-accent/30 bg-accent/[0.06] p-6 sm:p-8 animate-rise">
+      <h2 className="font-display text-lg font-bold text-ink">Set up your financial profile</h2>
+      <p className="text-sm text-muted mt-1 mb-5">Penny uses this to tailor your reports. You can change it anytime.</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[13px] text-muted">Risk appetite</span>
+          <select value={risk} onChange={(e) => setRisk(e.target.value as RiskAppetite)} className="rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink outline-none focus:border-border-strong">
+            {RISK_OPTIONS.map((o) => <option key={o.value} value={o.value} className="bg-surface text-ink">{o.label}</option>)}
+          </select>
+        </label>
+        <Field label="Monthly savings target" value={savings} onChange={setSavings} type="number" placeholder="e.g. 10000" />
+        <Field label="Time horizon (years)" value={horizon} onChange={setHorizon} type="number" placeholder="e.g. 10" />
+        <Field label="Dependents" value={dependents} onChange={setDependents} type="number" placeholder="e.g. 2" />
+      </div>
+
+      <p className="text-[13px] text-muted mt-4 mb-2">Goals (up to 3)</p>
+      <div className="space-y-2">
+        {goals.map((g, i) => (
+          <input
+            key={i}
+            value={g}
+            onChange={(e) => setGoals((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))}
+            placeholder={["Buy a car in 2 years", "Build an emergency fund", "Retire by 50"][i]}
+            className="w-full rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:border-accent/60"
+          />
+        ))}
+      </div>
+
+      <button onClick={save} disabled={saving} className="mt-5 px-5 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-colors disabled:opacity-60">
+        {saving ? "Saving…" : "Save profile"}
+      </button>
+    </section>
+  );
+}
+
+function ConsentModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-3xl bg-surface border border-border-strong p-6 shadow-[var(--shadow)] animate-rise">
+        <h2 className="font-display text-xl font-bold text-ink">Before Penny analyzes your finances</h2>
+        <p className="text-sm text-muted mt-3 leading-relaxed">
+          To generate a report, a summary of your financial data (asset totals, spending by category, salary and loans —
+          no names) is sent to an external AI provider (Groq) for analysis.
+        </p>
+        <p className="text-sm text-muted mt-3 leading-relaxed">
+          Penny is <span className="text-ink font-medium">not a registered investment adviser</span>. Reports are for
+          informational purposes only and are not financial advice.
+        </p>
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-muted hover:text-ink transition-colors">Cancel</button>
+          <button onClick={onAccept} className="flex-1 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-press text-accent-ink font-semibold text-sm transition-colors">I understand, continue</button>
+        </div>
+      </div>
     </div>
   );
 }
 
 function AnalyzingSkeleton() {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <section className="space-y-4">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="rounded-2xl border border-border bg-surface p-5">
+        <div key={i} className="rounded-2xl border border-border bg-surface p-6">
           <div className="h-3 w-1/3 rounded-full bg-surface-2 mb-3" style={{ animation: "penny-fade 1s ease infinite alternate" }} />
           <div className="h-2.5 w-full rounded-full bg-surface-2 mb-2" style={{ animation: "penny-fade 1s ease infinite alternate", animationDelay: "120ms" }} />
           <div className="h-2.5 w-4/5 rounded-full bg-surface-2" style={{ animation: "penny-fade 1s ease infinite alternate", animationDelay: "240ms" }} />
@@ -196,93 +313,13 @@ function AnalyzingSkeleton() {
   );
 }
 
-function FeatureCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+function Field({ label, value, onChange, ...rest }: { label: string; value: string; onChange: (v: string) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
   return (
-    <div className="rounded-2xl bg-surface border border-border p-5">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent/15 text-accent mb-3">{icon}</span>
-      <p className="text-sm font-semibold text-ink">{title}</p>
-      <p className="text-xs text-muted mt-1 leading-relaxed">{body}</p>
-    </div>
+    <label className="flex flex-col gap-1.5">
+      <span className="text-[13px] text-muted">{label}</span>
+      <input {...rest} value={value} onChange={(e) => onChange(e.target.value)} className="rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:border-accent/60" />
+    </label>
   );
-}
-
-/**
- * Heuristic insight generator. This is deliberately rule-based for now; the
- * real LLM/RAG engine will replace `buildInsights` while keeping this shape.
- */
-function buildInsights(
-  type: ReportType,
-  assets: AssetSummary | null,
-  expenses: ExpenseSummary | null,
-  currency: string
-): Insight[] {
-  const out: Insight[] = [];
-  const top = expenses?.by_category?.[0];
-  const monthly = expenses?.monthly ?? [];
-  const thisMonth = monthly.at(-1)?.total ?? 0;
-  const lastMonth = monthly.at(-2)?.total ?? 0;
-  const topAsset = [...(assets?.by_category ?? [])].sort((a, b) => b.total - a.total)[0];
-
-  if (type === "spending" || type === "savings") {
-    if (top) {
-      out.push({
-        tone: top.pct > 35 ? "warn" : "info",
-        title: `${categoryLabel(top.category)} leads your spending`,
-        body: `You spent ${formatCurrency(top.total, currency)} (${top.pct}%) on ${categoryLabel(top.category).toLowerCase()} this month.${
-          top.pct > 35 ? ` That's a large share — trimming it toward 20% would free up roughly ${formatCurrency(top.total * 0.4, currency)} a month.` : " That looks well balanced."
-        }`,
-      });
-    }
-    if (lastMonth > 0) {
-      const delta = ((thisMonth - lastMonth) / lastMonth) * 100;
-      out.push({
-        tone: delta > 10 ? "warn" : "good",
-        title: delta >= 0 ? "Spending is up vs last month" : "Spending is down vs last month",
-        body: `${monthShortLabel(monthly.at(-1)!.month)} spend is ${Math.abs(delta).toFixed(0)}% ${delta >= 0 ? "higher" : "lower"} than ${monthShortLabel(monthly.at(-2)!.month)} (${formatCurrency(thisMonth, currency)} vs ${formatCurrency(lastMonth, currency)}).`,
-      });
-    }
-  }
-
-  if (type === "savings") {
-    out.push({
-      tone: "info",
-      title: "Suggested savings move",
-      body: `A simple 50/30/20 split puts 20% of income toward savings. Once you add income, Penny can size an emergency fund and a monthly SIP target for you.`,
-    });
-  }
-
-  if (type === "networth" || type === "investing") {
-    if (topAsset && assets) {
-      out.push({
-        tone: topAsset.pct > 60 ? "warn" : "good",
-        title: `${CATEGORIES.find((c) => c.value === topAsset.category)?.label ?? topAsset.category} dominates your portfolio`,
-        body: `${topAsset.pct}% of your ${formatCurrency(assets.total, currency)} in assets sits in ${(CATEGORIES.find((c) => c.value === topAsset.category)?.label ?? topAsset.category).toLowerCase()}.${
-          topAsset.pct > 60 ? " High concentration adds risk — consider diversifying across more categories." : " That's a reasonably diversified base."
-        }`,
-      });
-    }
-    out.push({
-      tone: "info",
-      title: "A balanced starting allocation",
-      body: "A common long-term mix is ~50% index funds, 20% bonds, 20% stocks, 10% gold. Penny will tailor this to your risk profile once goals and income are added.",
-    });
-  }
-
-  if (out.length === 0) {
-    out.push({
-      tone: "info",
-      title: "Not enough data yet",
-      body: "Add a few assets and log some expenses, then regenerate — Penny needs data to find patterns.",
-    });
-  }
-
-  out.push({
-    tone: "info",
-    title: "How this becomes real AI",
-    body: "These are rule-based previews. The production engine will use an open-source LLM over a RAG knowledge base of financial principles to write tailored, advice-grade reports.",
-  });
-
-  return out;
 }
 
 /* — icons — */
@@ -297,12 +334,6 @@ function IconPig() {
 }
 function IconSpark() {
   return (<svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>);
-}
-function IconBook() {
-  return (<svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>);
-}
-function IconShield() {
-  return (<svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 5.25-3.75 9-9 9s-9-3.75-9-9 3.75-9 9-9 9 3.75 9 9z" /></svg>);
 }
 function Spinner() {
   return (<span className="inline-block h-4 w-4 rounded-full border-2 border-accent-ink/30 border-t-accent-ink" style={{ animation: "penny-spin 0.7s linear infinite" }} />);

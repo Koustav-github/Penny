@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_database
 from auth import get_current_user
+from services.summaries import compute_asset_summary
 import models
 import schemas
 
@@ -21,24 +22,7 @@ def _owned(db: Session, user: models.User, asset_id: int) -> models.Assets:
 
 @router.get("/summary", response_model=schemas.AssetSummary)
 def summary(db: Session = Depends(get_database), user: models.User = Depends(get_current_user)):
-    rows = db.query(models.Assets).filter(models.Assets.user_id == user.id).all()
-    # Loans are liabilities, not holdings: excluded from the asset total and the
-    # allocation breakdown. Their EMIs are reported separately.
-    holdings = [a for a in rows if a.category != "loan"]
-    emi_total = sum(a.emi or 0.0 for a in rows if a.category == "loan")
-    total = sum(a.value for a in holdings)
-    buckets: dict[str, float] = {}
-    for a in holdings:
-        buckets[a.category] = buckets.get(a.category, 0.0) + a.value
-    by_category = [
-        schemas.CategorySummary(
-            category=cat, total=amt, pct=round((amt / total * 100), 2) if total else 0.0
-        )
-        for cat, amt in buckets.items()
-    ]
-    return schemas.AssetSummary(
-        total=total, currency=user.currency, by_category=by_category, emi_total=emi_total
-    )
+    return compute_asset_summary(db, user)
 
 
 @router.get("", response_model=list[schemas.AssetOut])

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Date
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Date, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -15,8 +15,17 @@ class User(Base):
     monthly_salary = Column(Float, nullable=False, server_default="0")  # monthly income
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Financial profile (for AI Reports)
+    risk_appetite = Column(String, nullable=True)            # conservative|balanced|aggressive
+    monthly_savings_target = Column(Float, nullable=True)
+    time_horizon_years = Column(Integer, nullable=True)
+    dependents = Column(Integer, nullable=True)
+    goals = Column(JSON, nullable=True)                      # list[str], 1-3 goals
+    ai_consent_at = Column(DateTime(timezone=True), nullable=True)
+
     assets = relationship("Assets", back_populates="owner", cascade="all, delete-orphan")
     expenses = relationship("Expense", back_populates="owner", cascade="all, delete-orphan")
+    reports = relationship("Report", back_populates="owner", cascade="all, delete-orphan")
 
 
 class Assets(Base):
@@ -49,3 +58,17 @@ class Expense(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User", back_populates="expenses")
+
+
+class Report(Base):
+    __tablename__ = "reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    report_type = Column(String, nullable=False)       # spending|networth|savings|investing
+    period = Column(String, nullable=False)            # selected period label
+    model = Column(String, nullable=False)             # LLM model id (or "heuristic")
+    sections = Column(JSON, nullable=False)            # list[{key,title,body,bullets[]}]
+
+    owner = relationship("User", back_populates="reports")
