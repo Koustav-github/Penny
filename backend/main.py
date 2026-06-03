@@ -1,23 +1,16 @@
 from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-<<<<<<< HEAD
 from database import Base, engine, get_database
-=======
-from database import Base, engine, get_database, SessionLocal
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 import models
 import os
 import httpx
 from dotenv import load_dotenv
-<<<<<<< HEAD
 from routers import assets as assets_router
 from routers import users as users_router
 from routers import rates as rates_router
 from routers import expenses as expenses_router
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 
 load_dotenv()
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
@@ -26,13 +19,10 @@ CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
 
 app = FastAPI(title = "Penny Backend")
 
-<<<<<<< HEAD
 app.include_router(assets_router.router)
 app.include_router(users_router.router)
 app.include_router(rates_router.router)
 app.include_router(expenses_router.router)
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,16 +37,6 @@ class UserSync(BaseModel):
     email: EmailStr
 
 
-<<<<<<< HEAD
-=======
-def get_database():
-    database = SessionLocal()
-    try:
-        yield database
-    finally:
-        database.close()
-
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 @app.post("/users/sync")
 async def sync_user(user_data: UserSync, db: Session = Depends(get_database)):
     db_user = db.query(models.User).filter(models.User.clerk_id == user_data.clerk_id).first()

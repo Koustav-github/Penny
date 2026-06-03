@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Date
-=======
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -14,7 +10,6 @@ class User(Base):
     id = Column(Integer, primary_key=True, unique=True, index=True)
     clerk_id = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-<<<<<<< HEAD
     net_asset = Column(Float, default=0.0)  # legacy; no longer read/written
     currency = Column(String, nullable=False, server_default="INR")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -22,18 +17,11 @@ class User(Base):
     assets = relationship("Assets", back_populates="owner", cascade="all, delete-orphan")
     expenses = relationship("Expense", back_populates="owner", cascade="all, delete-orphan")
 
-=======
-    net_asset = Column(Float, default = 0.0)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-    assets = relationship("Assets", back_populates="owner")
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 
 class Assets(Base):
     __tablename__ = "assets"
 
     id = Column(Integer, primary_key=True, index=True)
-<<<<<<< HEAD
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False, index=True)
     category = Column(String, nullable=False)          # bank|cash|crypto|stock|gold|other
     name = Column(String, nullable=False)              # "SBI", "Bitcoin", "Nifty 50"
@@ -59,11 +47,3 @@ class Expense(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User", back_populates="expenses")
-=======
-    name = Column(String, nullable=False)   # e.g., "HDFC Bank"
-    asset_type = Column(String)              # e.g., "Bank", "Stock", "Crypto"
-    balance = Column(Float, default=0.0)
-    
-    user_id = Column(Integer, ForeignKey("user.id"))
-    owner = relationship("User", back_populates="assets")
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9

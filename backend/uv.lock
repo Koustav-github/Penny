@@ -55,10 +55,7 @@ dependencies = [
     { name = "alembic" },
     { name = "clerk-backend-api" },
     { name = "fastapi" },
-<<<<<<< HEAD
     { name = "httpx" },
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
     { name = "langchain" },
     { name = "langgraph" },
     { name = "langsmith" },
@@ -68,23 +65,17 @@ dependencies = [
     { name = "sqlalchemy" },
 ]
 
-<<<<<<< HEAD
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
 ]
 
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.18.4" },
     { name = "clerk-backend-api", specifier = ">=5.0.6" },
     { name = "fastapi", specifier = ">=0.135.2" },
-<<<<<<< HEAD
     { name = "httpx", specifier = ">=0.28.1" },
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
     { name = "langchain", specifier = ">=1.2.14" },
     { name = "langgraph", specifier = ">=1.1.4" },
     { name = "langsmith", specifier = ">=0.7.24" },
@@ -94,12 +85,9 @@ requires-dist = [
     { name = "sqlalchemy", specifier = ">=2.0.48" },
 ]
 
-<<<<<<< HEAD
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = ">=9.0.3" }]
 
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 [[package]]
 name = "certifi"
 version = "2026.2.25"
@@ -256,7 +244,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -266,8 +253,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 name = "cryptography"
 version = "46.0.6"
 source = { registry = "https://pypi.org/simple" }
@@ -448,7 +433,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "iniconfig"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -458,8 +442,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 name = "jsonpatch"
 version = "1.33"
 source = { registry = "https://pypi.org/simple" }
@@ -766,7 +748,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "pluggy"
 version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -776,8 +757,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 name = "psycopg2"
 version = "2.9.11"
 source = { registry = "https://pypi.org/simple" }
@@ -889,7 +868,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "pygments"
 version = "2.20.0"
 source = { registry = "https://pypi.org/simple" }
@@ -899,8 +877,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 name = "pyjwt"
 version = "2.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -910,7 +886,6 @@ wheels = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "pytest"
 version = "9.0.3"
 source = { registry = "https://pypi.org/simple" }
@@ -927,8 +902,6 @@ wheels = [
 ]
 
 [[package]]
-=======
->>>>>>> a72011abf6bfaa8841d6ed9e32d7f3beca136ab9
 name = "python-dotenv"
 version = "1.2.2"
 source = { registry = "https://pypi.org/simple" }
