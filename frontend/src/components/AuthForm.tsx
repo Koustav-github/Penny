@@ -163,8 +163,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
   if (step === 'verify') {
     return (
       <form onSubmit={handleVerify} className="flex flex-col gap-4">
-        <p className="text-sm text-white/60 text-center">
-          We sent a verification code to <span className="text-white/90">{email}</span>.
+        <p className="text-sm text-muted text-center">
+          We sent a verification code to <span className="text-ink font-medium">{email}</span>.
         </p>
         {error && <ErrorBanner message={error} />}
         <Field
@@ -187,7 +187,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             setCode('')
             setError(null)
           }}
-          className="text-xs text-white/40 hover:text-white/70 transition-colors"
+          className="text-xs text-muted hover:text-ink transition-colors"
         >
           Use a different email
         </button>
@@ -203,16 +203,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
         type="button"
         onClick={handleGoogle}
         disabled={!ready}
-        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-medium text-white/80 hover:bg-white/10 transition-colors disabled:opacity-50"
+        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm font-medium text-ink hover:border-border-strong transition-colors disabled:opacity-50"
       >
         <GoogleIcon />
         Continue with Google
       </button>
 
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-white/8" />
-        <span className="text-xs text-white/30">or</span>
-        <div className="h-px flex-1 bg-white/8" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs text-faint">or</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <form onSubmit={handleCollect} className="flex flex-col gap-4">
@@ -271,12 +271,12 @@ function Field({
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-white/55">{label}</span>
+      <span className="text-[13px] font-medium text-muted">{label}</span>
       <input
         {...rest}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-[#ededed] placeholder:text-white/25 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-colors"
+        className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-faint outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/30 transition-colors"
       />
     </label>
   )
@@ -293,7 +293,7 @@ function PrimaryButton({
     <button
       type="submit"
       disabled={disabled}
-      className="w-full px-4 py-2.5 rounded-xl bg-primary text-black font-semibold text-sm shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+      className="w-full px-4 py-2.5 rounded-xl bg-accent text-accent-ink font-semibold text-sm shadow-[0_0_24px_var(--glow)] hover:bg-accent-press transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
     >
       {children}
     </button>
@@ -302,7 +302,7 @@ function PrimaryButton({
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2.5 text-sm text-red-300">
+    <div className="rounded-xl bg-negative/10 border border-negative/25 px-3 py-2.5 text-sm text-negative">
       {message}
     </div>
   )
