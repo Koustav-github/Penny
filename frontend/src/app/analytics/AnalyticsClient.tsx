@@ -69,6 +69,10 @@ export default function AnalyticsClient() {
     { label: 'Avg Monthly Spend', value: formatCurrency(avgMonthly, currency), sub: 'Last 6 months' },
   ]
 
+  if (loading) {
+    return <AnalyticsSkeleton />
+  }
+
   return (
     <div className="flex-1 px-8 py-8 space-y-6">
       {/* KPI row */}
@@ -160,6 +164,62 @@ export default function AnalyticsClient() {
             ))}
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function Skeleton({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+  return <span className={`block skeleton rounded-lg ${className}`} style={style} />
+}
+
+function AnalyticsSkeleton() {
+  return (
+    <div className="flex-1 px-8 py-8 space-y-6 animate-fade">
+      {/* KPI row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-3xl border border-border bg-surface p-6">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-8 w-32 mt-3" />
+            <Skeleton className="h-3 w-40 mt-2" />
+          </div>
+        ))}
+      </div>
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <Skeleton className="h-3 w-28 mb-6" />
+          <div className="flex items-end gap-3 h-32">
+            {[60, 40, 75, 55, 85, 70].map((h, i) => (
+              <Skeleton key={i} className="flex-1 rounded-t-lg" style={{ height: `${h}%` }} />
+            ))}
+          </div>
+        </div>
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <Skeleton className="h-3 w-28 mb-6" />
+          <div className="space-y-4">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-2 w-16 shrink-0" />
+                <Skeleton className="h-2 flex-1" />
+                <Skeleton className="h-2 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Bottom section */}
+      <div className="rounded-3xl bg-surface border border-border p-6">
+        <Skeleton className="h-3 w-56 mb-6" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl border border-border bg-surface-2 p-4">
+              <Skeleton className="h-3 w-24 mb-3" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

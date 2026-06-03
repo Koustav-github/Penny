@@ -32,6 +32,7 @@ export default function AIReportsClient() {
   const [current, setCurrent] = useState<Report | null>(null);
   const [consentOpen, setConsentOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([api.getProfile(getToken), api.listReports(getToken)])
@@ -39,7 +40,8 @@ export default function AIReportsClient() {
         setProfile(p);
         setReports(r);
       })
-      .catch((e) => console.error("Failed to load AI reports", e));
+      .catch((e) => console.error("Failed to load AI reports", e))
+      .finally(() => setLoading(false));
   }, [getToken]);
 
   const runGenerate = async () => {
@@ -78,6 +80,10 @@ export default function AIReportsClient() {
 
   return (
     <div className="flex-1 px-8 py-8 space-y-8 max-w-6xl">
+      {loading ? (
+        <AIReportsSkeleton />
+      ) : (
+        <>
       {/* Profile setup */}
       {profile && !profileComplete(profile) && (
         <ProfilePanel profile={profile} onSaved={setProfile} />
@@ -172,6 +178,52 @@ export default function AIReportsClient() {
       </section>
 
       {consentOpen && <ConsentModal onAccept={acceptConsent} onClose={() => setConsentOpen(false)} />}
+        </>
+      )}
+    </div>
+  );
+}
+
+function Skeleton({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return <span className={`block skeleton rounded-lg ${className}`} style={style} />;
+}
+
+function AIReportsSkeleton() {
+  return (
+    <div className="space-y-8 animate-fade">
+      {/* Builder section */}
+      <section className="rounded-3xl bg-surface border border-border p-6 sm:p-8">
+        <Skeleton className="h-3 w-32 mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl border border-border bg-surface-2 p-4 space-y-3">
+              <Skeleton className="h-9 w-9" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="h-3 w-24 my-6" />
+        <div className="flex flex-wrap gap-2">
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-8 w-24 rounded-full" />
+          ))}
+        </div>
+        <Skeleton className="h-10 w-40 rounded-full mt-7" />
+      </section>
+
+      {/* History section */}
+      <section>
+        <Skeleton className="h-6 w-28 mb-4" />
+        <div className="space-y-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-2xl bg-surface border border-border px-5 py-3.5 space-y-2">
+              <Skeleton className="h-4 w-64" />
+              <Skeleton className="h-3 w-48" />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

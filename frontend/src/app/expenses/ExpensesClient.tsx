@@ -54,6 +54,10 @@ export default function ExpensesClient() {
 
   return (
     <div className="flex-1 px-8 py-8 space-y-6">
+      {loading ? (
+        <ExpensesSkeleton />
+      ) : (
+        <>
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <p className="text-sm text-muted">
           {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
@@ -147,9 +151,70 @@ export default function ExpensesClient() {
         </div>
       )}
 
+        </>
+      )}
       {formOpen && (
         <ExpenseForm initial={editing} onSubmit={handleSubmit} onClose={() => setFormOpen(false)} />
       )}
+    </div>
+  )
+}
+
+function Skeleton({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+  return <span className={`block skeleton rounded-lg ${className}`} style={style} />
+}
+
+function ExpensesSkeleton() {
+  return (
+    <div className="space-y-6 animate-fade">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-10 w-28 rounded-full" />
+      </div>
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <Skeleton className="h-3 w-24 mb-3" />
+          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-3 w-20 mt-2" />
+        </div>
+        <div className="rounded-3xl bg-surface border border-border p-6 sm:col-span-2">
+          <Skeleton className="h-3 w-28 mb-4" />
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-3 w-24 shrink-0" />
+                <Skeleton className="h-1.5 flex-1" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Transaction list */}
+      <div className="rounded-3xl bg-surface border border-border overflow-hidden">
+        <div className="px-6 py-4 border-b border-border">
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <div className="divide-y divide-border">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center justify-between px-6 py-4">
+              <div className="flex items-center gap-4 flex-1">
+                <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

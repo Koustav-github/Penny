@@ -49,6 +49,10 @@ export default function AssetsClient() {
 
   return (
     <div className="flex-1 px-8 py-8 space-y-6">
+      {loading ? (
+        <AssetsSkeleton />
+      ) : (
+        <>
       {/* Total + actions */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
@@ -119,6 +123,52 @@ export default function AssetsClient() {
       {formOpen && (
         <AssetForm initial={editing} onSubmit={handleSubmit} onClose={() => setFormOpen(false)} />
       )}
+        </>
+      )}
+    </div>
+  )
+}
+
+function Skeleton({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+  return <span className={`block skeleton rounded-lg ${className}`} style={style} />
+}
+
+function AssetsSkeleton() {
+  return (
+    <div className="space-y-6 animate-fade">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-28" />
+          <Skeleton className="h-10 w-48" />
+        </div>
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-32 rounded-full" />
+          <Skeleton className="h-10 w-28 rounded-full" />
+        </div>
+      </div>
+      {/* Chart placeholder */}
+      <div className="rounded-3xl bg-surface border border-border p-6">
+        <Skeleton className="h-48 w-full rounded-2xl" />
+      </div>
+      {/* Asset list */}
+      <div className="rounded-3xl bg-surface border border-border overflow-hidden">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <div className="flex items-center gap-3 flex-1">
+              <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+            <div className="space-y-2 text-right">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
