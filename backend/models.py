@@ -12,6 +12,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     net_asset = Column(Float, default=0.0)  # legacy; no longer read/written
     currency = Column(String, nullable=False, server_default="INR")
+    monthly_salary = Column(Float, nullable=False, server_default="0")  # monthly income
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     assets = relationship("Assets", back_populates="owner", cascade="all, delete-orphan")
@@ -23,11 +24,12 @@ class Assets(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False, index=True)
-    category = Column(String, nullable=False)          # bank|cash|crypto|stock|gold|other
+    category = Column(String, nullable=False)          # bank|cash|crypto|stock|gold|loan|other
     name = Column(String, nullable=False)              # "SBI", "Bitcoin", "Nifty 50"
     subtype = Column(String, nullable=True)            # bank: "Savings"/"Current"
     quantity = Column(Float, nullable=True)            # crypto/stock/gold units
-    value = Column(Float, nullable=False, default=0.0) # worth in user's currency
+    value = Column(Float, nullable=False, default=0.0) # worth (loan: outstanding amount)
+    emi = Column(Float, nullable=True)                 # loan: monthly installment
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

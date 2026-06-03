@@ -22,9 +22,13 @@ def _owned(db: Session, user: models.User, asset_id: int) -> models.Assets:
 @router.get("/summary", response_model=schemas.AssetSummary)
 def summary(db: Session = Depends(get_database), user: models.User = Depends(get_current_user)):
     rows = db.query(models.Assets).filter(models.Assets.user_id == user.id).all()
-    total = sum(a.value for a in rows)
+    # Loans are liabilities, not holdings: excluded from the asset total and the
+    # allocation breakdown. Their EMIs are reported separately.
+    holdings = [a for a in rows if a.category != "loan"]
+    emi_total = sum(a.emi or 0.0 for a in rows if a.category == "loan")
+    total = sum(a.value for a in holdings)
     buckets: dict[str, float] = {}
-    for a in rows:
+    for a in holdings:
         buckets[a.category] = buckets.get(a.category, 0.0) + a.value
     by_category = [
         schemas.CategorySummary(
@@ -32,7 +36,9 @@ def summary(db: Session = Depends(get_database), user: models.User = Depends(get
         )
         for cat, amt in buckets.items()
     ]
-    return schemas.AssetSummary(total=total, currency=user.currency, by_category=by_category)
+    return schemas.AssetSummary(
+        total=total, currency=user.currency, by_category=by_category, emi_total=emi_total
+    )
 
 
 @router.get("", response_model=list[schemas.AssetOut])

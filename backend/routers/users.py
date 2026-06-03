@@ -15,11 +15,14 @@ def get_me(user: models.User = Depends(get_current_user)):
 
 @router.patch("/me", response_model=schemas.UserOut)
 def update_me(
-    payload: schemas.CurrencyUpdate,
+    payload: schemas.UserUpdate,
     db: Session = Depends(get_database),
     user: models.User = Depends(get_current_user),
 ):
-    user.currency = payload.currency
+    if payload.currency is not None:
+        user.currency = payload.currency
+    if payload.monthly_salary is not None:
+        user.monthly_salary = payload.monthly_salary
     db.commit()
     db.refresh(user)
     return user

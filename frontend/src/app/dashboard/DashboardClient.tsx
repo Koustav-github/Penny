@@ -59,7 +59,9 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   }, [isLoaded, isSignedIn, getToken]);
 
   const currency = summary?.currency ?? "INR";
-  const netWorth = summary?.total ?? 0;
+  const assetTotal = summary?.total ?? 0;
+  const thisMonthSpend = expenses?.total ?? 0;
+  const netWorth = assetTotal - thisMonthSpend; // assets minus this month's expenses
   const monthly = expenses?.monthly ?? [];
   const maxMonthly = Math.max(1, ...monthly.map((m) => m.total));
   const topCategory = expenses?.by_category?.[0];
@@ -104,7 +106,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
                   {formatCurrency(netWorth, currency)}
                 </p>
                 <p className="text-sm text-muted mt-3">
-                  Across {assetList.length} asset{assetList.length === 1 ? "" : "s"} · {summary?.by_category.length ?? 0} categories
+                  {formatCurrency(assetTotal, currency)} in assets − {formatCurrency(thisMonthSpend, currency)} spent this month
                 </p>
               </div>
               <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-positive/15 text-positive text-xs font-semibold">
@@ -218,7 +220,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</p>
-                      <p className="text-xs text-faint">{netWorth > 0 ? ((a.value / netWorth) * 100).toFixed(1) : "0.0"}%</p>
+                      <p className="text-xs text-faint">{assetTotal > 0 ? ((a.value / assetTotal) * 100).toFixed(1) : "0.0"}%</p>
                     </div>
                   </div>
                 ))}

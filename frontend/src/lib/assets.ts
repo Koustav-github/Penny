@@ -1,4 +1,4 @@
-export type Category = 'bank' | 'cash' | 'crypto' | 'stock' | 'gold' | 'other'
+export type Category = 'bank' | 'cash' | 'crypto' | 'stock' | 'gold' | 'loan' | 'other'
 
 export interface Asset {
   id: number
@@ -7,12 +7,18 @@ export interface Asset {
   subtype: string | null
   quantity: number | null
   value: number
+  emi: number | null
   created_at: string
   updated_at: string
 }
 
 export interface CategorySummary { category: Category; total: number; pct: number }
-export interface AssetSummary { total: number; currency: string; by_category: CategorySummary[] }
+export interface AssetSummary {
+  total: number
+  currency: string
+  by_category: CategorySummary[]
+  emi_total: number
+}
 
 export const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'bank', label: 'Bank' },
@@ -20,6 +26,7 @@ export const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'crypto', label: 'Crypto' },
   { value: 'stock', label: 'Stocks' },
   { value: 'gold', label: 'Gold' },
+  { value: 'loan', label: 'Loan' },
   { value: 'other', label: 'Other' },
 ]
 
@@ -31,5 +38,6 @@ export const CATEGORY_COLORS: Record<Category, string> = {
   crypto: '#f97316',
   stock: '#10b981',
   gold: '#eab308',
+  loan: '#ef4444',
   other: '#64748b',
 }

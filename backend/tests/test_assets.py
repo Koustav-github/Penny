@@ -58,7 +58,28 @@ def test_summary_totals_and_pct(client, db):
     assert by["bank"]["pct"] == 25.0
 
 
+def test_loan_requires_emi(client, db):
+    auth_as(make_user(db))
+    # loan without emi is rejected
+    assert client.post("/assets", json={"category": "loan", "name": "Car loan", "value": 300000}).status_code == 422
+    # with emi it succeeds
+    ok = client.post("/assets", json={"category": "loan", "name": "Car loan", "value": 300000, "emi": 8000})
+    assert ok.status_code == 201 and ok.json()["emi"] == 8000
+
+
+def test_loans_excluded_from_total_and_reported_as_emi(client, db):
+    auth_as(make_user(db))
+    client.post("/assets", json={"category": "cash", "name": "Wallet", "value": 1000})
+    client.post("/assets", json={"category": "loan", "name": "Car loan", "value": 300000, "emi": 8000})
+    s = client.get("/assets/summary").json()
+    # loan principal not counted in asset total or allocation
+    assert s["total"] == 1000
+    assert s["emi_total"] == 8000
+    assert all(c["category"] != "loan" for c in s["by_category"])
+
+
 def test_summary_empty_is_zero(client, db):
     auth_as(make_user(db))
     s = client.get("/assets/summary").json()
     assert s["total"] == 0 and s["by_category"] == []
+    assert s["emi_total"] == 0

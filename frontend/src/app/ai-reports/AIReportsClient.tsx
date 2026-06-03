@@ -256,7 +256,7 @@ function buildInsights(
       out.push({
         tone: topAsset.pct > 60 ? "warn" : "good",
         title: `${CATEGORIES.find((c) => c.value === topAsset.category)?.label ?? topAsset.category} dominates your portfolio`,
-        body: `${topAsset.pct}% of your ${formatCurrency(assets.total, currency)} net worth sits in ${(CATEGORIES.find((c) => c.value === topAsset.category)?.label ?? topAsset.category).toLowerCase()}.${
+        body: `${topAsset.pct}% of your ${formatCurrency(assets.total, currency)} in assets sits in ${(CATEGORIES.find((c) => c.value === topAsset.category)?.label ?? topAsset.category).toLowerCase()}.${
           topAsset.pct > 60 ? " High concentration adds risk — consider diversifying across more categories." : " That's a reasonably diversified base."
         }`,
       });

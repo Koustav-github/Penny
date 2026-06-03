@@ -41,7 +41,8 @@ export default function AnalyticsClient() {
     )
   }
 
-  const netWorth = assets?.total ?? 0
+  const assetTotal = assets?.total ?? 0
+  const netWorth = assetTotal - (expenses?.total ?? 0) // assets minus this month's expenses
   const monthly = expenses?.monthly ?? []
   const monthsWithSpend = monthly.filter((m) => m.total > 0)
   const avgMonthly =
@@ -59,7 +60,7 @@ export default function AnalyticsClient() {
   const hasSpend = monthsWithSpend.length > 0
 
   const kpis = [
-    { label: 'Net Worth', value: formatCurrency(netWorth, currency), sub: `Across ${allocation.length} categories`, accent: true },
+    { label: 'Net Worth', value: formatCurrency(netWorth, currency), sub: `Assets − ${formatCurrency(thisMonthSpend, currency)} spent`, accent: true },
     { label: 'This Month', value: formatCurrency(thisMonthSpend, currency), sub: `${expenses?.count ?? 0} transactions` },
     { label: 'Avg Monthly Spend', value: formatCurrency(avgMonthly, currency), sub: 'Last 6 months' },
   ]

@@ -11,6 +11,14 @@ export interface AssetInput {
   subtype?: string | null
   quantity?: number | null
   value: number
+  emi?: number | null
+}
+
+export interface Me {
+  id: number
+  email: string
+  currency: string
+  monthly_salary: number
 }
 
 export interface ExpenseInput {
@@ -55,10 +63,9 @@ export const api = {
     req<Expense>(g, `/expenses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteExpense: (g: TokenGetter, id: number) =>
     req<void>(g, `/expenses/${id}`, { method: 'DELETE' }),
-  me: (g: TokenGetter) => req<{ id: number; email: string; currency: string }>(g, '/users/me'),
+  me: (g: TokenGetter) => req<Me>(g, '/users/me'),
   updateCurrency: (g: TokenGetter, currency: string) =>
-    req<{ id: number; email: string; currency: string }>(g, '/users/me', {
-      method: 'PATCH',
-      body: JSON.stringify({ currency }),
-    }),
+    req<Me>(g, '/users/me', { method: 'PATCH', body: JSON.stringify({ currency }) }),
+  updateSalary: (g: TokenGetter, monthly_salary: number) =>
+    req<Me>(g, '/users/me', { method: 'PATCH', body: JSON.stringify({ monthly_salary }) }),
 }

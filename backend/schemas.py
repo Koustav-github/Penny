@@ -10,6 +10,7 @@ class Category(str, Enum):
     crypto = "crypto"
     stock = "stock"
     gold = "gold"
+    loan = "loan"
     other = "other"
 
 
@@ -22,11 +23,16 @@ class AssetBase(BaseModel):
     subtype: Optional[str] = Field(default=None, max_length=60)
     quantity: Optional[float] = Field(default=None, ge=0)
     value: float = Field(ge=0)
+    emi: Optional[float] = Field(default=None, ge=0)  # loan: monthly installment
 
     @model_validator(mode="after")
     def check_category_fields(self):
         if self.category in QUANTITY_CATEGORIES and self.quantity is None:
             raise ValueError(f"quantity is required for {self.category.value}")
+        if self.category == Category.loan and self.emi is None:
+            raise ValueError("emi is required for loan")
+        if self.category != Category.loan:
+            self.emi = None
         if self.category != Category.bank:
             self.subtype = None
         return self
@@ -55,9 +61,10 @@ class CategorySummary(BaseModel):
 
 
 class AssetSummary(BaseModel):
-    total: float
+    total: float                  # sum of non-loan asset values
     currency: str
     by_category: list[CategorySummary]
+    emi_total: float = 0.0        # sum of monthly EMIs across loans
 
 
 class ExpenseCategory(str, Enum):
@@ -118,9 +125,11 @@ class UserOut(BaseModel):
     id: int
     email: str
     currency: str
+    monthly_salary: float
 
     model_config = {"from_attributes": True}
 
 
-class CurrencyUpdate(BaseModel):
-    currency: str = Field(pattern="^(INR|USD|EUR|GBP)$")
+class UserUpdate(BaseModel):
+    currency: Optional[str] = Field(default=None, pattern="^(INR|USD|EUR|GBP)$")
+    monthly_salary: Optional[float] = Field(default=None, ge=0)
