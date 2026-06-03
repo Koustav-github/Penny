@@ -24,6 +24,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   const [assetList, setAssetList] = useState<Asset[]>([]);
   const [expenses, setExpenses] = useState<ExpenseSummary | null>(null);
   const [salary, setSalary] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [expenseFormOpen, setExpenseFormOpen] = useState(false);
 
   const reload = async () => {
@@ -59,7 +60,9 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
-    reload().catch((e) => console.error("Failed to load dashboard data", e));
+    reload()
+      .catch((e) => console.error("Failed to load dashboard data", e))
+      .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, isSignedIn, getToken]);
 
@@ -100,6 +103,10 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
       </header>
 
       <div className="flex-1 px-8 py-8 space-y-6">
+        {loading ? (
+          <DashboardSkeleton />
+        ) : (
+          <>
         {/* Hero row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Net worth */}
@@ -251,12 +258,78 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
           <QuickLink href="/analytics" label="View Analytics" />
           <QuickLink href="/ai-reports" label="AI Reports" />
         </div>
+          </>
+        )}
       </div>
 
       {expenseFormOpen && (
         <ExpenseForm onSubmit={logExpense} onClose={() => setExpenseFormOpen(false)} />
       )}
     </main>
+  );
+}
+
+function Skeleton({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return <span className={`block skeleton rounded-lg ${className}`} style={style} />;
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6 animate-fade">
+      {/* Hero row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 rounded-3xl bg-surface border border-border p-8">
+          <Skeleton className="h-3 w-28" />
+          <Skeleton className="h-12 w-64 mt-4" />
+          <Skeleton className="h-3 w-80 mt-4" />
+          <div className="mt-8 pt-6 border-t border-border flex items-center gap-6">
+            <Skeleton className="h-40 w-40 rounded-full" />
+            <div className="flex-1 space-y-3">
+              <Skeleton className="h-3 w-2/3" />
+              <Skeleton className="h-3 w-1/2" />
+              <Skeleton className="h-3 w-3/5" />
+            </div>
+          </div>
+        </div>
+        <div className="rounded-3xl border border-border bg-surface p-6">
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <Skeleton className="h-5 w-full mt-4" />
+          <Skeleton className="h-5 w-4/5 mt-2" />
+          <Skeleton className="h-10 w-full mt-6 rounded-xl" />
+        </div>
+      </div>
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="rounded-2xl border border-border bg-surface p-5">
+            <Skeleton className="h-2.5 w-20" />
+            <Skeleton className="h-6 w-24 mt-3" />
+            <Skeleton className="h-2.5 w-16 mt-2" />
+          </div>
+        ))}
+      </div>
+      {/* Charts + assets */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="rounded-3xl bg-surface border border-border p-6">
+          <Skeleton className="h-3 w-40" />
+          <div className="mt-6 flex items-end gap-2.5 h-32">
+            {[60, 40, 75, 55, 85, 70].map((h, i) => (
+              <Skeleton key={i} className="flex-1 rounded-t-lg" style={{ height: `${h}%` }} />
+            ))}
+          </div>
+        </div>
+        <div className="lg:col-span-2 rounded-3xl bg-surface border border-border p-6 space-y-4">
+          <Skeleton className="h-3 w-28" />
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-9 w-9 rounded-xl" />
+              <Skeleton className="h-3 flex-1" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
