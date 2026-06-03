@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import LandingMotion from "@/components/LandingMotion";
 
 const FEATURES = [
   { icon: <IconWallet />, title: "Track every asset", body: "Bank balances, stocks, crypto, gold and cash — logged manually and unified into one live net-worth figure." },
@@ -24,6 +25,7 @@ const TECH = ["Next.js", "FastAPI", "PostgreSQL", "Open-source LLM", "RAG knowle
 export default function Home() {
   return (
     <div className="min-h-screen bg-bg text-ink relative overflow-hidden">
+      <LandingMotion />
       {/* Atmosphere */}
       <div className="pointer-events-none absolute -top-40 -left-20 h-[560px] w-[560px] rounded-full bg-accent/12 blur-[150px]" />
       <div className="pointer-events-none absolute top-1/4 -right-24 h-[460px] w-[460px] rounded-full bg-emerald/10 blur-[150px]" />
@@ -96,9 +98,9 @@ export default function Home() {
       {/* Features */}
       <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-20">
         <SectionHeading kicker="What it does" title="Everything you need to see your money clearly" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
+        <div data-animate-group className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
           {FEATURES.map((f) => (
-            <div key={f.title} className="rounded-3xl bg-surface border border-border p-6 hover:border-border-strong transition-colors">
+            <div key={f.title} data-animate-item className="rounded-3xl bg-surface border border-border p-6 hover:border-border-strong transition-colors">
               <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent/15 text-accent mb-4">{f.icon}</span>
               <h3 className="font-display text-lg font-bold">{f.title}</h3>
               <p className="text-sm text-muted mt-1.5 leading-relaxed">{f.body}</p>
@@ -111,7 +113,7 @@ export default function Home() {
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
         <div className="rounded-[2rem] border border-border bg-linear-to-b from-accent/8 to-transparent p-8 sm:p-12">
           <SectionHeading kicker="Penny AI" title="Advice that reads like a human wrote it" center />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
+          <div data-animate-group className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
             <AICard tone="warn" title="Spending alert" body="You spent 35% on food this month. Trimming toward 20% could save you ₹6,000." />
             <AICard tone="good" title="Savings plan" body="Invest ₹5,000/month in index funds and build a ₹1.5 lakh emergency fund." />
             <AICard tone="info" title="Allocation" body="50% index funds · 20% bonds · 20% stocks · 10% gold, tuned to your risk profile." />
@@ -123,9 +125,9 @@ export default function Home() {
       {/* Roadmap */}
       <section id="roadmap" className="relative z-10 max-w-7xl mx-auto px-6 py-20">
         <SectionHeading kicker="The vision" title="From tracker to regulated fintech" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
+        <div data-animate-group className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
           {ROADMAP.map((r, i) => (
-            <div key={r.tag} className="relative rounded-3xl bg-surface border border-border p-6 overflow-hidden">
+            <div key={r.tag} data-animate-item className="relative rounded-3xl bg-surface border border-border p-6 overflow-hidden">
               <span className="absolute top-5 right-5 font-display text-5xl font-extrabold text-border-strong/40 select-none">{i + 1}</span>
               <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent/15 text-accent mb-3">{r.tag}</span>
               <h3 className="font-display text-xl font-bold">{r.name}</h3>
@@ -139,9 +141,9 @@ export default function Home() {
       <section id="tech" className="relative z-10 max-w-7xl mx-auto px-6 py-16">
         <div className="flex flex-col items-center gap-6">
           <p className="text-xs font-semibold text-faint uppercase tracking-[0.18em]">Built with a modern stack</p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div data-animate-group className="flex flex-wrap items-center justify-center gap-3">
             {TECH.map((t) => (
-              <span key={t} className="px-4 py-2 rounded-full bg-surface-2 border border-border text-sm font-medium text-muted">{t}</span>
+              <span key={t} data-animate-item className="px-4 py-2 rounded-full bg-surface-2 border border-border text-sm font-medium text-muted">{t}</span>
             ))}
           </div>
         </div>
@@ -149,7 +151,7 @@ export default function Home() {
 
       {/* CTA */}
       <section className="relative z-10 max-w-5xl mx-auto px-6 py-20">
-        <div className="relative rounded-[2rem] bg-accent text-accent-ink p-10 sm:p-16 text-center overflow-hidden">
+        <div data-animate className="relative rounded-[2rem] bg-accent text-accent-ink p-10 sm:p-16 text-center overflow-hidden">
           <div className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-black/10 blur-2xl" />
           <h2 className="font-display text-3xl sm:text-5xl font-extrabold tracking-tight">Start growing your wealth today</h2>
           <p className="mt-4 text-accent-ink/80 max-w-xl mx-auto">Free to start, no hidden fees, full control of your data.</p>
@@ -175,7 +177,7 @@ export default function Home() {
 
 function SectionHeading({ kicker, title, center }: { kicker: string; title: string; center?: boolean }) {
   return (
-    <div className={center ? "text-center max-w-2xl mx-auto" : "max-w-2xl"}>
+    <div data-animate className={center ? "text-center max-w-2xl mx-auto" : "max-w-2xl"}>
       <p className="text-xs font-semibold text-accent uppercase tracking-[0.18em] mb-3">{kicker}</p>
       <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight">{title}</h2>
     </div>
@@ -185,7 +187,7 @@ function SectionHeading({ kicker, title, center }: { kicker: string; title: stri
 function AICard({ tone, title, body }: { tone: "good" | "warn" | "info"; title: string; body: string }) {
   const dot = tone === "good" ? "bg-positive" : tone === "warn" ? "bg-negative" : "bg-accent";
   return (
-    <div className="rounded-2xl bg-surface border border-border p-5 text-left">
+    <div data-animate-item className="rounded-2xl bg-surface border border-border p-5 text-left">
       <div className="flex items-center gap-2 mb-2">
         <span className={`h-2 w-2 rounded-full ${dot}`} />
         <span className="text-sm font-semibold">{title}</span>
