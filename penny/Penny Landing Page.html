@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Penny — Your money, but it finally speaks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Kaushan+Script&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="penny.css" />
+</head>
+<body>
+
+<!-- ===================== 3D FLOATING SCENE ===================== -->
+<div class="scene" aria-hidden="true">
+
+  <!-- HERO cluster (top of page) -->
+  <div class="floaty" style="left:8%; top:120px;" data-speed="0.18" data-spin="1.2">
+    <div class="pose" style="transform: rotateX(14deg) rotateY(-18deg) rotateZ(-8deg);">
+      <div class="bob" style="--dur:8s; --delay:.2s; --wobble:3deg;">
+        <div class="card3d card--green">
+          <div class="c-top"><span class="c-brand"><span class="c-dot"></span>Penny</span><span class="c-num" style="font-size:11px;letter-spacing:.18em;">DEBIT</span></div>
+          <div class="chip"></div>
+          <div class="c-num">5412&nbsp;&nbsp;7790&nbsp;&nbsp;0042&nbsp;&nbsp;8810</div>
+          <div class="c-foot"><span>A. RIVERA</span><span>VALID 09/29</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty" style="right:7%; top:230px;" data-speed="0.30" data-spin="-1.6">
+    <div class="pose" style="transform: rotateX(20deg) rotateY(22deg) rotateZ(9deg);">
+      <div class="bob" style="--dur:9.5s; --delay:.6s; --wobble:-4deg;">
+        <div class="card3d card--dark">
+          <div class="c-top"><span class="c-brand"><span class="c-dot"></span>Penny</span><span class="c-num" style="font-size:11px;letter-spacing:.18em;">BLACK</span></div>
+          <div class="chip"></div>
+          <div class="c-num">4920&nbsp;&nbsp;1183&nbsp;&nbsp;6657&nbsp;&nbsp;2204</div>
+          <div class="c-foot"><span>J. OKONKWO</span><span>CVV ···</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty" style="left:18%; top:560px;" data-speed="0.42" data-spin="2.2">
+    <div class="pose" style="transform: rotateX(-10deg) rotateY(26deg) rotateZ(-12deg);">
+      <div class="bob" style="--dur:7s; --delay:.1s; --wobble:4deg;">
+        <div class="coin coin--gold" style="width:96px;height:96px;font-size:34px;">$</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty tier-extra" style="right:20%; top:610px;" data-speed="0.55" data-spin="-2.4">
+    <div class="pose" style="transform: rotateY(-20deg) rotateZ(8deg);">
+      <div class="bob" style="--dur:6.4s; --delay:.4s; --wobble:6deg;">
+        <div class="token token--btc" style="width:78px;height:78px;font-size:34px;">₿</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty" style="left:46%; top:80px;" data-speed="0.62" data-spin="1.0">
+    <div class="pose">
+      <div class="bob" style="--dur:5.5s; --delay:.9s; --wobble:0deg;">
+        <div class="orb" style="width:120px;height:120px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty tier-extra" style="left:4%; top:760px;" data-speed="0.5" data-spin="-1.2">
+    <div class="pose" style="transform: rotateY(16deg) rotateZ(-6deg);">
+      <div class="bob" style="--dur:8.8s; --delay:.3s; --wobble:-3deg;">
+        <div class="bill"><span class="b-corner tl">100</span><span class="b-amt">$100</span><span class="b-corner br">USD</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- mid: how-it-works zone -->
+  <div class="floaty" style="right:5%; top:1500px;" data-speed="0.34" data-spin="1.5">
+    <div class="pose" style="transform: rotateX(12deg) rotateY(-24deg) rotateZ(7deg);">
+      <div class="bob" style="--dur:9s; --delay:.2s; --wobble:4deg;">
+        <div class="coin coin--green" style="width:70px;height:70px;font-size:26px;">P</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty tier-extra" style="left:6%; top:1750px;" data-speed="0.48" data-spin="-2.0">
+    <div class="pose" style="transform: rotateY(28deg) rotateZ(-10deg);">
+      <div class="bob" style="--dur:7.6s; --delay:.7s; --wobble:5deg;">
+        <div class="token token--eth" style="width:64px;height:64px;font-size:30px;">Ξ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floaty" style="left:2%; top:2150px;" data-speed="0.4" data-spin="1.1">
+    <div class="pose" style="transform: rotateX(16deg) rotateY(20deg) rotateZ(10deg);">
+      <div class="bob" style="--dur:10s; --delay:.5s; --wobble:-4deg;">
+        <div class="card3d card--gold" style="width:250px;">
+          <div class="c-top"><span class="c-brand"><span class="c-dot"></span>Penny</span><span class="c-num" style="font-size:10px;letter-spacing:.18em;">METAL</span></div>
+          <div class="chip"></div>
+          <div class="c-num" style="font-size:13px;">3781&nbsp;&nbsp;8829&nbsp;&nbsp;1000&nbsp;&nbsp;55</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- features zone -->
+  <div class="floaty tier-extra" style="right:4%; top:2700px;" data-speed="0.52" data-spin="-1.4">
+    <div class="pose"><div class="bob" style="--dur:6s; --delay:.2s;"><div class="orb orb--dim" style="width:90px;height:90px;"></div></div></div>
+  </div>
+  <div class="floaty" style="left:5%; top:3050px;" data-speed="0.36" data-spin="2.0">
+    <div class="pose" style="transform: rotateY(-22deg) rotateZ(8deg);">
+      <div class="bob" style="--dur:8.2s; --delay:.6s; --wobble:5deg;">
+        <div class="coin coin--copper" style="width:60px;height:60px;font-size:22px;">¢</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- demo zone -->
+  <div class="floaty tier-extra" style="right:8%; top:3550px;" data-speed="0.44" data-spin="-1.8">
+    <div class="pose" style="transform: rotateX(10deg) rotateY(24deg) rotateZ(-9deg);">
+      <div class="bob" style="--dur:9.3s; --delay:.3s; --wobble:4deg;">
+        <div class="token token--btc" style="width:58px;height:58px;font-size:26px;">₿</div>
+      </div>
+    </div>
+  </div>
+  <div class="floaty" style="left:3%; top:3900px;" data-speed="0.3" data-spin="1.3">
+    <div class="pose" style="transform: rotateY(18deg) rotateZ(-7deg);">
+      <div class="bob" style="--dur:7.8s; --delay:.5s; --wobble:-5deg;">
+        <div class="bill" style="width:170px;"><span class="b-corner tl">50</span><span class="b-amt">$50</span><span class="b-corner br">USD</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- proof / pricing zone -->
+  <div class="floaty tier-extra" style="left:7%; top:4500px;" data-speed="0.46" data-spin="-1.5">
+    <div class="pose"><div class="bob" style="--dur:6.7s;"><div class="coin coin--gold" style="width:64px;height:64px;font-size:24px;">$</div></div></div>
+  </div>
+  <div class="floaty" style="right:5%; top:4850px;" data-speed="0.38" data-spin="1.7">
+    <div class="pose" style="transform: rotateY(-26deg) rotateZ(9deg);">
+      <div class="bob" style="--dur:8.5s; --delay:.4s; --wobble:4deg;">
+        <div class="orb" style="width:80px;height:80px;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="floaty tier-extra" style="left:9%; top:5350px;" data-speed="0.5" data-spin="-2.1">
+    <div class="pose" style="transform: rotateY(22deg) rotateZ(-8deg);">
+      <div class="bob" style="--dur:7.2s; --delay:.6s; --wobble:5deg;">
+        <div class="token token--eth" style="width:56px;height:56px;font-size:26px;">Ξ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav-inner" aria-label="Primary">
+  <a class="brand" href="#top"><span class="coin-mark">P</span>Penny</a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#demo">Meet Penny</a>
+    <a href="#pricing">Pricing</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn btn-primary">Get early access</button>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero section" id="top" data-screen-label="Hero">
+  <div class="ghost-word">Penny</div>
+  <div class="wrap hero-inner">
+    <span class="eyebrow">Your AI financial assistant</span>
+    <h1>Money talks.<br />Now it actually <span class="script" id="hero-accent">speaks.</span></h1>
+    <p class="sub">Penny is the AI that watches every dollar, answers every question, and turns your accounts, cards and crypto into clear, confident decisions — in plain language.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary">Get early access <span class="btn-arrow">→</span></button>
+      <a href="#demo" class="btn btn-ghost">See Penny in action</a>
+    </div>
+    <div class="hero-trust">
+      <span><b>40,000+</b> on the waitlist</span>
+      <span><b>Bank-grade</b> encryption</span>
+      <span><b>4.9★</b> early rating</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="how section" id="how" data-screen-label="How it works">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">How Penny works</span>
+      <h2>Three steps to a money mind <span class="script">that never sleeps</span></h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal d1"><span class="step-line"></span>
+        <div class="step-ico">🔗</div>
+        <h3>Connect everything</h3>
+        <p>Link banks, cards, crypto wallets and investments in seconds. Penny pulls it all into one living picture — read-only and encrypted.</p>
+      </div>
+      <div class="step reveal d2"><span class="step-line"></span>
+        <div class="step-ico">💬</div>
+        <h3>Ask anything</h3>
+        <p>“Can I afford this?” “Where did my money go?” “Am I on track?” Talk to Penny like a friend who happens to be a brilliant analyst.</p>
+      </div>
+      <div class="step reveal d3"><span class="step-line"></span>
+        <div class="step-ico">✨</div>
+        <h3>Act with confidence</h3>
+        <p>Penny spots savings, flags risks and nudges you at the right moment — then automates the boring parts so you don't have to.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FEATURES ===================== -->
+<section class="features section" id="features" data-screen-label="Features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Capabilities</span>
+      <h2>Everything your money <span class="script">wishes it could tell you</span></h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat span-2 reveal"><div class="f-ico">🔍</div><h3>Spending X-ray</h3><p>See exactly where every dollar went, grouped and explained — no more mystery charges.</p></div>
+      <div class="feat span-2 reveal d1"><div class="f-ico">📡</div><h3>Bill &amp; subscription radar</h3><p>Penny catches renewals, price hikes and zombie subscriptions before they hit.</p></div>
+      <div class="feat span-2 reveal d2"><div class="f-ico">🪙</div><h3>Crypto + cash, one view</h3><p>Coins, cards and accounts in a single net-worth picture that updates live.</p></div>
+
+      <div class="feat span-3 feat-big reveal"><div>
+        <div class="f-ico">🤖</div><h3>An assistant that forecasts</h3>
+        <p>Penny models your cash flow weeks ahead, so a tight month never sneaks up on you.</p></div>
+        <div class="stat-row">
+          <div class="stat"><div class="n">28 days</div><div class="l">cash-flow foresight</div></div>
+          <div class="stat"><div class="n">$3,400</div><div class="l">avg. yearly savings found</div></div>
+        </div>
+      </div>
+      <div class="feat span-3 feat-big reveal d1"><div>
+        <div class="f-ico">🔒</div><h3>Private by design</h3>
+        <p>Bank-grade 256-bit encryption, read-only access, and your data is never sold. Penny works for you — full stop.</p></div>
+        <div class="stat-row">
+          <div class="stat"><div class="n">256-bit</div><div class="l">end-to-end encryption</div></div>
+          <div class="stat"><div class="n">0</div><div class="l">data ever sold</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AI CHAT DEMO ===================== -->
+<section class="demo section" id="demo" data-screen-label="Meet Penny">
+  <div class="wrap">
+    <div class="demo-grid">
+      <div class="demo-copy reveal">
+        <span class="eyebrow">Meet Penny</span>
+        <h2 style="font-family:var(--font-display);font-weight:800;font-size:clamp(32px,4.6vw,54px);line-height:1.03;letter-spacing:-.025em;margin:18px 0 0;">Talk to your money <span class="script">like a person</span></h2>
+        <p style="color:var(--ink-dim);margin-top:18px;font-size:18px;">No dashboards to decode. Just ask — Penny answers in plain words, with the numbers to back it up. Tap a question to see for yourself. 👉</p>
+        <ul class="feat-list">
+          <li><span class="tick">✓</span><span>Understands context — your goals, habits and history.</span></li>
+          <li><span class="tick">✓</span><span>Replies in seconds, day or night.</span></li>
+          <li><span class="tick">✓</span><span>Turns every answer into a one-tap action.</span></li>
+        </ul>
+      </div>
+
+      <div class="reveal d1">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="screen-top">
+              <span class="av">P</span>
+              <div><div class="who">Penny</div><div class="stat-txt">AI financial assistant</div></div>
+              <span class="stat-dot"></span>
+            </div>
+            <div class="chat" id="chat"></div>
+            <div class="composer">
+              <div class="prompts" id="prompts">
+                <button class="prompt-chip" data-key="spend">Where did my money go?</button>
+                <button class="prompt-chip" data-key="save">Am I on track to save?</button>
+                <button class="prompt-chip" data-key="crypto">How's my portfolio?</button>
+                <button class="prompt-chip" data-key="bills">Any bills coming up?</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SOCIAL PROOF ===================== -->
+<section class="proof section" data-screen-label="Social proof">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Loved early</span>
+      <h2>People who let their money <span class="script">do the talking</span></h2>
+    </div>
+    <div class="proof-stats">
+      <div class="pstat reveal"><div class="n">40k+</div><div class="l">on the waitlist</div></div>
+      <div class="pstat reveal d1"><div class="n">$3,400</div><div class="l">avg. saved per year</div></div>
+      <div class="pstat reveal d2"><div class="n">4.9<span class="script" style="font-size:.7em;">★</span></div><div class="l">early-access rating</div></div>
+      <div class="pstat reveal d3"><div class="n">2 min</div><div class="l">to connect everything</div></div>
+    </div>
+    <div class="quotes">
+      <div class="quote reveal">
+        <div class="stars">★★★★★</div>
+        <p>“I asked Penny if I could afford a weekend trip. It checked my upcoming bills and said yes — with $180 to spare. It was right.”</p>
+        <div class="who"><span class="ava">M</span><div><div class="nm">Maya R.</div><div class="rl">Designer, Austin</div></div></div>
+      </div>
+      <div class="quote reveal d1">
+        <div class="stars">★★★★★</div>
+        <p>“It found two subscriptions I forgot about and a better savings rate in the first ten minutes. Penny paid for itself instantly.”</p>
+        <div class="who"><span class="ava">D</span><div><div class="nm">Daniel K.</div><div class="rl">Founder, Lisbon</div></div></div>
+      </div>
+      <div class="quote reveal d2">
+        <div class="stars">★★★★★</div>
+        <p>“Finally my cash, cards and crypto live in one place — and something smart actually explains them to me. Feels like cheating.”</p>
+        <div class="who"><span class="ava">S</span><div><div class="nm">Sofia L.</div><div class="rl">Engineer, Berlin</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRICING ===================== -->
+<section class="pricing section" id="pricing" data-screen-label="Pricing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2>Start free. Upgrade when <span class="script">money speaks louder</span></h2>
+    </div>
+    <div class="tiers">
+      <div class="tier reveal">
+        <div class="t-name">Free</div>
+        <div class="t-price">$0<small>/mo</small></div>
+        <div class="t-desc">Everything you need to start the conversation.</div>
+        <ul>
+          <li><span class="tk">✓</span>Connect up to 3 accounts</li>
+          <li><span class="tk">✓</span>Ask Penny 20 questions/mo</li>
+          <li><span class="tk">✓</span>Spending X-ray &amp; bill radar</li>
+          <li><span class="tk">✓</span>Net-worth dashboard</li>
+        </ul>
+        <button class="btn btn-ghost">Get started</button>
+      </div>
+      <div class="tier feat-tier reveal d1">
+        <span class="tag">Most popular</span>
+        <div class="t-name">Plus</div>
+        <div class="t-price">$9<small>/mo</small></div>
+        <div class="t-desc">Penny, unlimited — for people who want it all to talk.</div>
+        <ul>
+          <li><span class="tk">✓</span>Unlimited accounts &amp; wallets</li>
+          <li><span class="tk">✓</span>Unlimited questions &amp; forecasts</li>
+          <li><span class="tk">✓</span>Savings autopilot &amp; goals</li>
+          <li><span class="tk">✓</span>Crypto + cash net-worth view</li>
+          <li><span class="tk">✓</span>Priority AI responses</li>
+        </ul>
+        <button class="btn btn-primary">Get early access</button>
+      </div>
+      <div class="tier reveal d2">
+        <div class="t-name">Wealth</div>
+        <div class="t-price">$29<small>/mo</small></div>
+        <div class="t-desc">For complex money lives and bigger ambitions.</div>
+        <ul>
+          <li><span class="tk">✓</span>Everything in Plus</li>
+          <li><span class="tk">✓</span>Tax &amp; investment insights</li>
+          <li><span class="tk">✓</span>Multi-currency &amp; entities</li>
+          <li><span class="tk">✓</span>Human advisor on call</li>
+        </ul>
+        <button class="btn btn-ghost">Talk to us</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER CTA ===================== -->
+<section class="footer-cta section" data-screen-label="Final CTA">
+  <div class="wrap">
+    <span class="eyebrow reveal" style="justify-content:center;display:flex;">Join the waitlist</span>
+    <h2 class="reveal">Your money has a lot<br />to say. Let it <span class="script">speak.</span></h2>
+    <form class="email-form reveal d1">
+      <input type="email" placeholder="you@email.com" aria-label="Email address" />
+      <button class="btn btn-primary" type="submit">Get early access</button>
+    </form>
+    <div class="foot-note reveal d1">Free to start · No card required · Bank-grade security</div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap row">
+    <a class="brand" href="#top"><span class="coin-mark">P</span>Penny</a>
+    <div class="links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#demo">Meet Penny</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#top">Privacy</a>
+    </div>
+    <div class="copy">© 2026 Penny AI · Money speaks.</div>
+  </div>
+</footer>
+
+<!-- Tweaks panel mount -->
+<div id="tweaks-root"></div>
+
+<script src="penny.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="penny-tweaks.jsx"></script>
+</body>
+</html>
