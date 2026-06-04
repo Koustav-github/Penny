@@ -16,6 +16,13 @@ from routers import reports as reports_router
 load_dotenv()
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
 
+# Allowed CORS origins. Local dev defaults are always included; set
+# FRONTEND_ORIGIN in production (comma-separated for multiple) to your deployed
+# frontend URL(s), e.g. "https://penny.vercel.app".
+_default_origins = ["http://localhost:3000"]
+_env_origins = [o.strip() for o in os.getenv("FRONTEND_ORIGIN", "").split(",") if o.strip()]
+ALLOWED_ORIGINS = _default_origins + _env_origins
+
 # Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title = "Penny Backend")
@@ -28,7 +35,7 @@ app.include_router(reports_router.router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
