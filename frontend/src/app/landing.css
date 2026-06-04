@@ -313,7 +313,8 @@
 @media (max-width: 760px) {
   .penny-root { font-size: 16px; }
   .penny-root .floaty.tier-extra { display: none; }   /* thin out the scene on phones */
-  .penny-root .card3d { width: 230px; }                /* smaller floating cards */
+  /* Hide the big rectangular props so they never sit over the hero copy */
+  .penny-root .card3d, .penny-root .bill { display: none; }
   .penny-root .hero { padding: 140px 0 80px; }
   .penny-root .how, .penny-root .features, .penny-root .demo, .penny-root .roadmap { padding: 70px 0; }
   .penny-root .footer-cta { padding: 80px 0 70px; }
@@ -352,8 +353,8 @@
   font-size: 15.5px; font-weight: 500; transition: background .15s ease, color .15s ease;
 }
 .penny-root .nav-menu a:hover { background: var(--surface-2); color: var(--ink); }
-.penny-root .nav-menu-actions { display: flex; gap: 8px; margin-top: 10px; }
-.penny-root .nav-menu-actions .btn { flex: 1; justify-content: center; }
+.penny-root .nav-menu-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.penny-root .nav-menu-actions .btn { width: 100%; justify-content: center; }
 
 @media (max-width: 820px) {
   .penny-root .nav-burger { display: grid; }
@@ -392,6 +393,8 @@ html.light .penny-root .ghost-word { color: rgba(23, 20, 13, 0.04); }
 html.light .penny-root .nav-inner { background: rgba(255, 255, 255, 0.62); }
 html.light .penny-root .nav-inner.scrolled { background: rgba(255, 255, 255, 0.88); }
 html.light .penny-root .nav-menu { background: rgba(250, 248, 242, 0.97); }
+/* the dark credit card reads as grey (not near-black) on the warm-white bg */
+html.light .penny-root .card--dark { background: linear-gradient(150deg, #7d828c, #43474e 76%); }
 /* the phone flips to light so its token-based chat bubbles read correctly */
 html.light .penny-root .phone { background: linear-gradient(160deg, #e7e4da, #f3f0e7); }
 html.light .penny-root .screen { background: linear-gradient(180deg, #fcfaf4, #f3f0e7); }
