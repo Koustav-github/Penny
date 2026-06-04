@@ -29,13 +29,26 @@ def update_me(
     return user
 
 
+def _normalize_goals(raw) -> list[dict] | None:
+    """Tolerate legacy goals stored as plain strings (term defaults to short)."""
+    if not raw:
+        return None
+    out: list[dict] = []
+    for g in raw:
+        if isinstance(g, str):
+            out.append({"text": g, "term": "short"})
+        elif isinstance(g, dict) and g.get("text"):
+            out.append({"text": g["text"], "term": g.get("term", "short")})
+    return out or None
+
+
 def _profile_out(user: models.User) -> schemas.ProfileOut:
     return schemas.ProfileOut(
         risk_appetite=user.risk_appetite,
         monthly_savings_target=user.monthly_savings_target,
         time_horizon_years=user.time_horizon_years,
         dependents=user.dependents,
-        goals=user.goals,
+        goals=_normalize_goals(user.goals),
         ai_consent=user.ai_consent_at is not None,
     )
 
@@ -62,7 +75,11 @@ def update_profile(
     if "dependents" in data:
         user.dependents = data["dependents"]
     if "goals" in data:
-        user.goals = data["goals"]
+        user.goals = (
+            [{"text": g.text, "term": g.term.value} for g in payload.goals]
+            if payload.goals
+            else payload.goals
+        )
     db.commit()
     db.refresh(user)
     return _profile_out(user)

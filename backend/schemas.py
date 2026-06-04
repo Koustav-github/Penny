@@ -150,17 +150,27 @@ class ReportType(str, Enum):
     investing = "investing"
 
 
+class GoalTerm(str, Enum):
+    short = "short"
+    long = "long"
+
+
+class Goal(BaseModel):
+    text: str = Field(min_length=1, max_length=120)
+    term: GoalTerm = GoalTerm.short
+
+
 class ProfileIn(BaseModel):
     risk_appetite: Optional[RiskAppetite] = None
     monthly_savings_target: Optional[float] = Field(default=None, ge=0)
     time_horizon_years: Optional[int] = Field(default=None, ge=0, le=100)
     dependents: Optional[int] = Field(default=None, ge=0, le=50)
-    goals: Optional[list[str]] = None  # capped to 3 in the validator below
+    goals: Optional[list[Goal]] = None  # capped to 10 in the validator below
 
     @model_validator(mode="after")
-    def trim_goals(self):
+    def cap_goals(self):
         if self.goals is not None:
-            self.goals = [g.strip() for g in self.goals if g and g.strip()][:3]
+            self.goals = [g for g in self.goals if g.text.strip()][:10]
         return self
 
 
@@ -169,7 +179,7 @@ class ProfileOut(BaseModel):
     monthly_savings_target: Optional[float] = None
     time_horizon_years: Optional[int] = None
     dependents: Optional[int] = None
-    goals: Optional[list[str]] = None
+    goals: Optional[list[Goal]] = None
     ai_consent: bool = False
 
     model_config = {"from_attributes": True}

@@ -41,6 +41,10 @@ Rules:
   4. key="grow_savings" title="Ways to grow savings & net worth"
 - Ground every claim in the real numbers from the snapshot. Quote actual figures in the user's currency.
 - Be specific and actionable; prefer concrete amounts and percentages over generic advice.
+- Tailor advice to the user's profile: risk appetite, time horizon, dependents, monthly savings target.
+- Use the user's goals (profile.goals). Each goal has a term: "short" (near-term) or "long" (multi-year).
+  In "grow_savings", address short-term goals with immediate steps and long-term goals with a multi-year
+  plan, referencing each goal by name. If there are no goals, suggest setting one or two.
 - If data is sparse, say so plainly and suggest what to track next.
 - Do NOT invent transactions, holdings, or numbers that are not in the snapshot.
 - Do NOT promise returns or give registered investment advice. Keep a helpful, non-prescriptive tone.

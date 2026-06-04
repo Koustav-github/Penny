@@ -29,22 +29,29 @@ def test_reject_bad_currency(client, db):
     assert client.patch("/users/me", json={"currency": "XYZ"}).status_code == 422
 
 
-def test_profile_round_trip_and_goals_capped(client, db):
+def test_profile_round_trip_with_goal_terms(client, db):
     auth_as(make_user(db))
     r = client.put("/users/profile", json={
         "risk_appetite": "balanced",
         "monthly_savings_target": 10000,
         "time_horizon_years": 10,
         "dependents": 2,
-        "goals": ["car", "house", "retire", "extra"],  # 4 -> capped to 3
+        "goals": [
+            {"text": "Emergency fund", "term": "short"},
+            {"text": "Buy a house", "term": "long"},
+        ],
     })
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["risk_appetite"] == "balanced"
-    assert body["goals"] == ["car", "house", "retire"]
+    assert body["goals"] == [
+        {"text": "Emergency fund", "term": "short"},
+        {"text": "Buy a house", "term": "long"},
+    ]
     assert body["ai_consent"] is False
-    # persists
-    assert client.get("/users/profile").json()["dependents"] == 2
+    # persists, and goals survive an unrelated update
+    client.patch("/users/me", json={"currency": "USD"})
+    assert client.get("/users/profile").json()["goals"][1]["term"] == "long"
 
 
 def test_ai_consent_sets_flag(client, db):
