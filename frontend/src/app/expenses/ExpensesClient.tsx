@@ -53,7 +53,7 @@ export default function ExpensesClient() {
   const topCategories = (summary?.by_category ?? []).slice(0, 4)
 
   return (
-    <div className="flex-1 px-8 py-8 space-y-6">
+    <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-6">
       {loading ? (
         <ExpensesSkeleton />
       ) : (

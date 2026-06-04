@@ -1,9 +1,7 @@
 import { currentUser } from '@clerk/nextjs/server'
-import Link from 'next/link'
-import SidebarSignOut from './SidebarSignOut'
-import ThemeToggle from './ThemeToggle'
+import SidebarShell, { type NavItem } from './SidebarShell'
 
-const navItems = [
+const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: <IconGrid /> },
   { href: '/assets', label: 'Assets', icon: <IconWallet /> },
   { href: '/expenses', label: 'Expenses', icon: <IconReceipt /> },
@@ -16,64 +14,7 @@ export async function AppSidebar({ active }: { active: string }) {
   const firstName = user?.firstName ?? 'there'
   const email = user?.emailAddresses[0]?.emailAddress ?? ''
 
-  return (
-    <aside className="w-64 min-h-screen border-r border-border bg-bg-elev/60 backdrop-blur-xl flex flex-col px-4 py-6 shrink-0 relative z-20">
-      {/* Logo */}
-      <Link href="/dashboard" className="flex items-center gap-2.5 mb-9 px-2 group">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accent-ink font-display font-extrabold text-lg shadow-[0_0_24px_var(--glow)] transition-transform group-hover:scale-105">
-          P
-        </span>
-        <span className="font-display text-xl font-extrabold tracking-tight text-ink">Penny</span>
-      </Link>
-
-      <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">Menu</p>
-      <nav className="flex flex-col gap-1 flex-1">
-        {navItems.map((item) => {
-          const isActive = active === item.label.toLowerCase().replace(' ', '-') || active === item.label.toLowerCase()
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? 'bg-accent/12 text-ink'
-                  : 'text-muted hover:text-ink hover:bg-surface-2'
-              }`}
-            >
-              {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-accent" />
-              )}
-              <span className={isActive ? 'text-accent' : 'text-faint group-hover:text-muted'}>{item.icon}</span>
-              {item.label}
-              {item.label === 'AI Reports' && (
-                <span className="ml-auto text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-accent/15 text-accent">
-                  New
-                </span>
-              )}
-            </Link>
-          )
-        })}
-      </nav>
-
-      {/* Footer */}
-      <div className="border-t border-border pt-4 mt-4 flex flex-col gap-2">
-        <div className="flex items-center justify-between px-2">
-          <span className="text-[11px] font-medium text-faint">Appearance</span>
-          <ThemeToggle />
-        </div>
-        <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-accent/15 text-accent font-semibold text-sm shrink-0">
-            {firstName.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium text-ink truncate">{firstName}</span>
-            <span className="text-xs text-faint truncate">{email}</span>
-          </div>
-        </div>
-        <SidebarSignOut />
-      </div>
-    </aside>
-  )
+  return <SidebarShell active={active} firstName={firstName} email={email} navItems={navItems} />
 }
 
 function IconGrid() {

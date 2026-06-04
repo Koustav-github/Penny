@@ -81,7 +81,7 @@ export default function AIReportsClient() {
   };
 
   return (
-    <div className="flex-1 px-8 py-8 space-y-8 max-w-6xl">
+    <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-8 max-w-6xl">
       {loading ? (
         <AIReportsSkeleton />
       ) : (

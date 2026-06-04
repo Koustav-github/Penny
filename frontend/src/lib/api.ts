@@ -2,7 +2,8 @@ import type { Asset, AssetSummary, Category } from './assets'
 import type { Expense, ExpenseCategory, ExpenseSummary } from './expenses'
 import type { Profile, ProfileInput, Report, ReportType } from './reports'
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+const BASE = API_BASE
 
 type TokenGetter = () => Promise<string | null>
 

@@ -35,7 +35,7 @@ export default function AnalyticsClient() {
 
   if (error) {
     return (
-      <div className="flex-1 px-8 py-8">
+      <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8">
         <div className="rounded-xl bg-negative/10 border border-negative/25 px-3 py-2 text-sm text-negative">{error}</div>
       </div>
     )
@@ -71,7 +71,7 @@ export default function AnalyticsClient() {
   }
 
   return (
-    <div className="flex-1 px-8 py-8 space-y-6">
+    <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-6">
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {kpis.map((kpi) => (
@@ -172,7 +172,7 @@ function Skeleton({ className = '', style }: { className?: string; style?: React
 
 function AnalyticsSkeleton() {
   return (
-    <div className="flex-1 px-8 py-8 space-y-6 animate-fade">
+    <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-6 animate-fade">
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (

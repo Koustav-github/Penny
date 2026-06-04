@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { api, type ExpenseInput } from "@/lib/api";
+import { api, API_BASE, type ExpenseInput } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { computeNetWorth } from "@/lib/networth";
 import { CATEGORIES, type Asset, type AssetSummary } from "@/lib/assets";
@@ -47,7 +47,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      fetch("http://localhost:8000/users/sync", {
+      fetch(`${API_BASE}/users/sync`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -77,9 +77,9 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   const greeting = greetingForNow();
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen relative z-10">
+    <main className="flex-1 flex flex-col min-h-screen relative z-10 pt-14 lg:pt-0">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-8 py-5 border-b border-border">
+      <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 border-b border-border">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink tracking-tight">
             {greeting}, {firstName}
@@ -102,7 +102,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
         </div>
       </header>
 
-      <div className="flex-1 px-8 py-8 space-y-6">
+      <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-6">
         {loading ? (
           <DashboardSkeleton />
         ) : (
