@@ -234,7 +234,7 @@
 .penny-root .feat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
 .penny-root .feat { border-radius: var(--radius); background: var(--surface); border: 1px solid var(--hairline); padding: 30px 28px; position: relative; overflow: hidden; transition: border-color .25s ease, transform .25s ease, background .25s ease; }
 .penny-root .feat:hover { border-color: var(--hairline-2); transform: translateY(-3px); background: var(--surface-2); }
-.penny-root .feat .f-ico { font-size: 24px; width: 48px; height: 48px; border-radius: 12px; display:grid; place-items:center; background: var(--accent-soft); margin-bottom: 18px; }
+.penny-root .feat .f-ico { width: 48px; height: 48px; border-radius: 12px; display:grid; place-items:center; background: var(--accent-soft); color: var(--accent); margin-bottom: 18px; }
 .penny-root .feat h3 { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: -.01em; margin-bottom: 9px; }
 .penny-root .feat p { color: var(--p-muted); font-size: 15px; }
 .penny-root .feat.span-3 { grid-column: span 3; }

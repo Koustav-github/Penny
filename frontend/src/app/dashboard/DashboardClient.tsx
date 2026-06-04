@@ -26,6 +26,12 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   const [salary, setSalary] = useState(0);
   const [loading, setLoading] = useState(true);
   const [expenseFormOpen, setExpenseFormOpen] = useState(false);
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    // Read the client's local clock after mount (avoids SSR/client mismatch).
+    setNow(new Date());
+  }, []);
 
   const reload = async () => {
     const [s, a, e, m] = await Promise.all([
@@ -74,7 +80,12 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
   const monthly = expenses?.monthly ?? [];
   const maxMonthly = Math.max(1, ...monthly.map((m) => m.total));
   const topCategory = expenses?.by_category?.[0];
-  const greeting = greetingForNow();
+  // Time-based text must not be rendered during SSR (server is UTC, client is
+  // local) or hydration mismatches (React #418). Compute it only after mount.
+  const greeting = now ? greetingForHour(now.getHours()) : "Welcome";
+  const dateLabel = now
+    ? now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+    : "";
 
   return (
     <main className="flex-1 flex flex-col min-h-screen relative z-10 pt-14 lg:pt-0">
@@ -84,8 +95,8 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
           <h1 className="font-display text-2xl font-bold text-ink tracking-tight">
             {greeting}, {firstName}
           </h1>
-          <p className="text-sm text-muted mt-0.5">
-            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+          <p className="text-sm text-muted mt-0.5 min-h-[1.25rem]" suppressHydrationWarning>
+            {dateLabel}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -354,8 +365,7 @@ function QuickLink({ href, label }: { href: string; label: string }) {
   );
 }
 
-function greetingForNow() {
-  const h = new Date().getHours();
+function greetingForHour(h: number) {
   if (h < 12) return "Good morning";
   if (h < 18) return "Good afternoon";
   return "Good evening";

@@ -145,7 +145,8 @@ export default function PennyLandingScripts() {
     }
     promptWrap?.addEventListener('click', onChip)
     if (chat && !chat.childElementCount) {
-      const greet = mk('div', 'bubble penny', "Hi — I&apos;m <b>Penny</b>. Ask me anything about your money. 👇")
+      const arrowDown = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>'
+      const greet = mk('div', 'bubble penny', `Hi — I'm <b>Penny</b>. Ask me anything about your money. ${arrowDown}`)
       chat.appendChild(greet)
       greet.classList.add('show')
     }

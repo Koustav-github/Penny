@@ -1,4 +1,16 @@
 import Link from "next/link";
+import {
+  Wallet,
+  LayoutDashboard,
+  Sparkles,
+  Search,
+  Coins,
+  ArrowRightLeft,
+  Bot,
+  ShieldCheck,
+  ArrowRight,
+  Check,
+} from "lucide-react";
 import "./landing.css";
 import PennyLandingScripts from "@/components/PennyLandingScripts";
 
@@ -101,17 +113,17 @@ export default function Home() {
           </div>
           <div className="steps">
             <div className="step reveal"><span className="step-line" />
-              <div className="step-ico">🔗</div>
+              <div className="step-ico"><Wallet size={22} /></div>
               <h3>Add your money</h3>
               <p>Log bank balances, stocks, crypto, gold and loans. Penny unifies everything into one live net-worth picture.</p>
             </div>
             <div className="step reveal d1"><span className="step-line" />
-              <div className="step-ico">📊</div>
+              <div className="step-ico"><LayoutDashboard size={22} /></div>
               <h3>See the full picture</h3>
               <p>A net-worth dashboard, spending analytics and 6-month trends turn raw numbers into real clarity.</p>
             </div>
             <div className="step reveal d2"><span className="step-line" />
-              <div className="step-ico">✨</div>
+              <div className="step-ico"><Sparkles size={22} /></div>
               <h3>Ask Penny AI</h3>
               <p>Get a plain-language report — where you overspent, where to cut, and how to grow savings — tailored to your goals.</p>
             </div>
@@ -127,12 +139,12 @@ export default function Home() {
             <h2>Everything your money <span className="script">wishes it could tell you</span></h2>
           </div>
           <div className="feat-grid">
-            <div className="feat span-2 reveal"><div className="f-ico">🔍</div><h3>Spending X-ray</h3><p>See exactly where every rupee went, grouped by category with monthly trends — no more mystery charges.</p></div>
-            <div className="feat span-2 reveal d1"><div className="f-ico">🪙</div><h3>Every asset, one view</h3><p>Bank, cash, stocks, crypto, gold and loans rolled into a single net-worth figure.</p></div>
-            <div className="feat span-2 reveal d2"><div className="f-ico">💱</div><h3>Multi-currency</h3><p>Hold and view your wealth in INR, USD, EUR or GBP, with live FX on the way.</p></div>
+            <div className="feat span-2 reveal"><div className="f-ico"><Search size={22} /></div><h3>Spending X-ray</h3><p>See exactly where every rupee went, grouped by category with monthly trends — no more mystery charges.</p></div>
+            <div className="feat span-2 reveal d1"><div className="f-ico"><Coins size={22} /></div><h3>Every asset, one view</h3><p>Bank, cash, stocks, crypto, gold and loans rolled into a single net-worth figure.</p></div>
+            <div className="feat span-2 reveal d2"><div className="f-ico"><ArrowRightLeft size={22} /></div><h3>Multi-currency</h3><p>Hold and view your wealth in INR, USD, EUR or GBP, with live FX on the way.</p></div>
 
             <div className="feat span-3 feat-big reveal"><div>
-              <div className="f-ico">🤖</div><h3>An adviser grounded in your numbers</h3>
+              <div className="f-ico"><Bot size={22} /></div><h3>An adviser grounded in your numbers</h3>
               <p>Penny&apos;s AI reads your real data and writes a tailored report: summary, where you overspent, what to cut, and how to grow savings and net worth.</p></div>
               <div className="stat-row">
                 <div className="stat"><div className="n">4</div><div className="l">report types</div></div>
@@ -140,7 +152,7 @@ export default function Home() {
               </div>
             </div>
             <div className="feat span-3 feat-big reveal d1"><div>
-              <div className="f-ico">🔒</div><h3>Private by design</h3>
+              <div className="f-ico"><ShieldCheck size={22} /></div><h3>Private by design</h3>
               <p>Secure sign-in, read-only by default, and your financial data is never sold. Penny works for you — full stop.</p></div>
               <div className="stat-row">
                 <div className="stat"><div className="n">100%</div><div className="l">your data, your control</div></div>
@@ -158,11 +170,13 @@ export default function Home() {
             <div className="demo-copy reveal">
               <span className="eyebrow">Meet Penny</span>
               <h2>Talk to your money <span className="script">like a person</span></h2>
-              <p className="lead">No dashboards to decode. Ask in plain words — Penny answers with the real numbers behind it. Tap a question to see for yourself. 👉</p>
+              <p className="lead">No dashboards to decode. Ask in plain words — Penny answers with the real numbers behind it. Tap a question to see for yourself.{" "}
+                <ArrowRight size={18} style={{ display: "inline", verticalAlign: "-3px", color: "var(--accent)" }} />
+              </p>
               <ul className="feat-list">
-                <li><span className="tick">✓</span><span>Reads your real assets, spending and goals.</span></li>
-                <li><span className="tick">✓</span><span>Replies in plain language, with the figures.</span></li>
-                <li><span className="tick">✓</span><span>Turns every insight into a next step.</span></li>
+                <li><span className="tick"><Check size={13} strokeWidth={3} /></span><span>Reads your real assets, spending and goals.</span></li>
+                <li><span className="tick"><Check size={13} strokeWidth={3} /></span><span>Replies in plain language, with the figures.</span></li>
+                <li><span className="tick"><Check size={13} strokeWidth={3} /></span><span>Turns every insight into a next step.</span></li>
               </ul>
             </div>
 
