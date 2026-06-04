@@ -12,6 +12,7 @@ import {
   Check,
 } from "lucide-react";
 import "./landing.css";
+import LandingNav from "@/components/LandingNav";
 import PennyLandingScripts from "@/components/PennyLandingScripts";
 
 type CSS = React.CSSProperties;
@@ -71,19 +72,7 @@ export default function Home() {
       </div>
 
       {/* ===================== NAV ===================== */}
-      <nav className="nav-inner" aria-label="Primary">
-        <Link className="brand" href="#top"><span className="coin-mark">P</span>Penny</Link>
-        <div className="nav-links">
-          <a href="#how">How it works</a>
-          <a href="#features">Features</a>
-          <a href="#demo">Meet Penny</a>
-          <a href="#roadmap">Roadmap</a>
-        </div>
-        <div className="nav-cta">
-          <Link href="/login" className="nav-signin" style={{ fontSize: 14, color: "var(--ink-dim)" }}>Sign in</Link>
-          <Link className="btn btn-primary" href="/signup">Get started</Link>
-        </div>
-      </nav>
+      <LandingNav />
 
       {/* ===================== HERO ===================== */}
       <header className="hero section" id="top">
