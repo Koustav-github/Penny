@@ -62,12 +62,12 @@ export default function SidebarShell({
 
       {/* Sidebar / drawer */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 lg:w-64 min-h-screen border-r border-border bg-bg-elev/95 lg:bg-bg-elev/60 backdrop-blur-xl flex flex-col px-4 py-6 shrink-0 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 lg:w-64 min-h-screen overflow-hidden border-r border-border bg-bg-elev/95 lg:bg-bg-elev/60 backdrop-blur-xl flex flex-col px-4 py-6 shrink-0 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           open ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
-        {/* Logo + mobile close */}
-        <div className="flex items-center justify-between mb-9">
+        {/* Logo + mobile close (pinned) */}
+        <div className="flex items-center justify-between mb-6 shrink-0">
           <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2.5 px-2 group">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accent-ink font-display font-extrabold text-lg shadow-[0_0_24px_var(--glow)] transition-transform group-hover:scale-105">
               P
@@ -84,8 +84,10 @@ export default function SidebarShell({
           </button>
         </div>
 
+        {/* Scrollable nav region */}
+        <div className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1">
         <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">Menu</p>
-        <nav className="flex flex-col gap-1 flex-1">
+        <nav className="flex flex-col gap-1">
           {navItems.map((item) => {
             const isActive = active === item.label.toLowerCase().replace(' ', '-') || active === item.label.toLowerCase()
             return (
@@ -107,9 +109,10 @@ export default function SidebarShell({
             )
           })}
         </nav>
+        </div>
 
-        {/* Footer */}
-        <div className="border-t border-border pt-4 mt-4 flex flex-col gap-2">
+        {/* Footer (pinned, always visible) */}
+        <div className="border-t border-border pt-4 mt-4 flex flex-col gap-2 shrink-0">
           <div className="flex items-center justify-between px-2">
             <span className="text-[11px] font-medium text-faint">Appearance</span>
             <ThemeToggle />
