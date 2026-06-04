@@ -1,5 +1,11 @@
 export type ReportType = 'spending' | 'networth' | 'savings' | 'investing'
 export type RiskAppetite = 'conservative' | 'balanced' | 'aggressive'
+export type GoalTerm = 'short' | 'long'
+
+export interface Goal {
+  text: string
+  term: GoalTerm
+}
 
 export interface ReportSection {
   key: string
@@ -23,7 +29,7 @@ export interface Profile {
   monthly_savings_target: number | null
   time_horizon_years: number | null
   dependents: number | null
-  goals: string[] | null
+  goals: Goal[] | null
   ai_consent: boolean
 }
 
@@ -32,7 +38,7 @@ export interface ProfileInput {
   monthly_savings_target?: number | null
   time_horizon_years?: number | null
   dependents?: number | null
-  goals?: string[]
+  goals?: Goal[]
 }
 
 export const RISK_OPTIONS: { value: RiskAppetite; label: string }[] = [

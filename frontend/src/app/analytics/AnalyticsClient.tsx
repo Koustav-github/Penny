@@ -33,9 +33,6 @@ export default function AnalyticsClient() {
 
   const currency = assets?.currency ?? expenses?.currency ?? 'INR'
 
-  if (loading) {
-    return <div className="flex-1 px-8 py-8"><p className="text-muted text-sm">Loading…</p></div>
-  }
   if (error) {
     return (
       <div className="flex-1 px-8 py-8">

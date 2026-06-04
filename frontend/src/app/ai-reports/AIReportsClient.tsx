@@ -6,6 +6,8 @@ import { api } from "@/lib/api";
 import {
   RISK_OPTIONS,
   profileComplete,
+  type Goal,
+  type GoalTerm,
   type Profile,
   type ProfileInput,
   type Report,
@@ -88,6 +90,9 @@ export default function AIReportsClient() {
       {profile && !profileComplete(profile) && (
         <ProfilePanel profile={profile} onSaved={setProfile} />
       )}
+
+      {/* Goals */}
+      {profile && <GoalsSection profile={profile} onSaved={setProfile} />}
 
       {/* Builder */}
       <section className="rounded-3xl bg-surface border border-border p-6 sm:p-8 animate-rise">
@@ -271,7 +276,6 @@ function ProfilePanel({ profile, onSaved }: { profile: Profile; onSaved: (p: Pro
   const [savings, setSavings] = useState(profile.monthly_savings_target?.toString() ?? "");
   const [horizon, setHorizon] = useState(profile.time_horizon_years?.toString() ?? "");
   const [dependents, setDependents] = useState(profile.dependents?.toString() ?? "");
-  const [goals, setGoals] = useState<string[]>([profile.goals?.[0] ?? "", profile.goals?.[1] ?? "", profile.goals?.[2] ?? ""]);
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
@@ -281,7 +285,6 @@ function ProfilePanel({ profile, onSaved }: { profile: Profile; onSaved: (p: Pro
       monthly_savings_target: savings ? Number(savings) : null,
       time_horizon_years: horizon ? Number(horizon) : null,
       dependents: dependents ? Number(dependents) : null,
-      goals: goals.map((g) => g.trim()).filter(Boolean),
     };
     try {
       onSaved(await api.updateProfile(getToken, body));
@@ -309,22 +312,122 @@ function ProfilePanel({ profile, onSaved }: { profile: Profile; onSaved: (p: Pro
         <Field label="Dependents" value={dependents} onChange={setDependents} type="number" placeholder="e.g. 2" />
       </div>
 
-      <p className="text-[13px] text-muted mt-4 mb-2">Goals (up to 3)</p>
-      <div className="space-y-2">
-        {goals.map((g, i) => (
-          <input
-            key={i}
-            value={g}
-            onChange={(e) => setGoals((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))}
-            placeholder={["Buy a car in 2 years", "Build an emergency fund", "Retire by 50"][i]}
-            className="w-full rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:border-accent/60"
-          />
-        ))}
-      </div>
-
       <button onClick={save} disabled={saving} className="mt-5 px-5 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-colors disabled:opacity-60">
         {saving ? "Saving…" : "Save profile"}
       </button>
+    </section>
+  );
+}
+
+const TERMS: { term: GoalTerm; label: string }[] = [
+  { term: "short", label: "Short-term" },
+  { term: "long", label: "Long-term" },
+];
+
+function GoalsSection({ profile, onSaved }: { profile: Profile; onSaved: (p: Profile) => void }) {
+  const { getToken } = useAuth();
+  const [goals, setGoals] = useState<Goal[]>(profile.goals ?? []);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const patch = (i: number, p: Partial<Goal>) => {
+    setGoals((gs) => gs.map((g, j) => (j === i ? { ...g, ...p } : g)));
+    setDirty(true);
+  };
+  const remove = (i: number) => {
+    setGoals((gs) => gs.filter((_, j) => j !== i));
+    setDirty(true);
+  };
+  const add = (term: GoalTerm) => {
+    setGoals((gs) => [...gs, { text: "", term }]);
+    setDirty(true);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    const cleaned = goals.map((g) => ({ text: g.text.trim(), term: g.term })).filter((g) => g.text);
+    try {
+      onSaved(await api.updateProfile(getToken, { goals: cleaned }));
+      setGoals(cleaned);
+      setDirty(false);
+    } catch (e) {
+      console.error("Failed to save goals", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="rounded-3xl bg-surface border border-border p-6 sm:p-8 animate-rise">
+      <div className="flex items-center justify-between gap-3 mb-1">
+        <h2 className="font-display text-lg font-bold text-ink">Your goals</h2>
+        {dirty && (
+          <button
+            onClick={save}
+            disabled={saving}
+            className="px-4 py-2 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-colors disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Save goals"}
+          </button>
+        )}
+      </div>
+      <p className="text-sm text-muted mb-6">Track short- and long-term goals. Penny uses these to tailor your reports.</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {TERMS.map(({ term, label }) => {
+          const count = goals.filter((g) => g.term === term).length;
+          return (
+            <div key={term}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-ink flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${term === "short" ? "bg-accent" : "bg-emerald"}`} />
+                  {label}
+                </h3>
+                <span className="text-xs text-faint">{count} {count === 1 ? "goal" : "goals"}</span>
+              </div>
+
+              <div className="space-y-2">
+                {goals.map((g, i) =>
+                  g.term !== term ? null : (
+                    <div key={i} className="flex items-center gap-2">
+                      <input
+                        value={g.text}
+                        onChange={(e) => patch(i, { text: e.target.value })}
+                        placeholder={term === "short" ? "e.g. Build an emergency fund" : "e.g. Buy a house in 5 years"}
+                        className="flex-1 rounded-xl bg-surface-2 border border-border px-3 py-2.5 text-sm text-ink placeholder:text-faint outline-none focus:border-accent/60"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => patch(i, { term: term === "short" ? "long" : "short" })}
+                        title={`Move to ${term === "short" ? "long" : "short"}-term`}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 border border-border text-muted hover:text-ink transition-colors"
+                      >
+                        <IconSwap />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => remove(i)}
+                        title="Delete goal"
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 border border-border text-negative/80 hover:text-negative transition-colors"
+                      >
+                        <IconTrash />
+                      </button>
+                    </div>
+                  )
+                )}
+                {count === 0 && <p className="text-xs text-faint">No {label.toLowerCase()} goals yet.</p>}
+                <button
+                  type="button"
+                  onClick={() => add(term)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline mt-1"
+                >
+                  <IconPlus /> Add {label.toLowerCase()} goal
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
@@ -389,4 +492,13 @@ function IconSpark() {
 }
 function Spinner() {
   return (<span className="inline-block h-4 w-4 rounded-full border-2 border-accent-ink/30 border-t-accent-ink" style={{ animation: "penny-spin 0.7s linear infinite" }} />);
+}
+function IconSwap() {
+  return (<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>);
+}
+function IconTrash() {
+  return (<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>);
+}
+function IconPlus() {
+  return (<svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>);
 }

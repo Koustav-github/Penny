@@ -1,237 +1,296 @@
 import Link from "next/link";
-import ThemeToggle from "@/components/ThemeToggle";
-import LandingMotion from "@/components/LandingMotion";
+import "./landing.css";
+import PennyLandingScripts from "@/components/PennyLandingScripts";
 
-const FEATURES = [
-  { icon: <IconWallet />, title: "Track every asset", body: "Bank balances, stocks, crypto, gold and cash — logged manually and unified into one live net-worth figure." },
-  { icon: <IconReceipt />, title: "Expense tracking", body: "Log spending by category and instantly see where your money actually goes each month." },
-  { icon: <IconChart />, title: "Net-worth dashboard", body: "Beautiful graphs and analytics that turn raw numbers into a clear picture of your finances." },
-  { icon: <IconSpark />, title: "AI insights", body: "“You spent 35% on food this month — try 20% to boost savings.” Plain-language advice from your data." },
-  { icon: <IconGlobe />, title: "Multi-currency", body: "Hold and view your wealth in INR, USD, EUR or GBP with live exchange rates." },
-  { icon: <IconShield />, title: "Built toward compliance", body: "Designed from day one with SEBI-aware reporting in mind: Penny suggests, you decide." },
-];
+type CSS = React.CSSProperties;
 
-const ROADMAP = [
-  { tag: "v0.1", name: "Tracker", desc: "Personal finance tracker — assets, expenses, net worth." },
-  { tag: "v0.2", name: "Advisor", desc: "AI advisor: goal planning, risk profiling, SIP plans." },
-  { tag: "v0.3", name: "Assistant", desc: "Live market & crypto data, alerts, recommendations." },
-  { tag: "v0.4", name: "Planner", desc: "Allocation, rebalancing, strategy simulation & backtests." },
-  { tag: "v0.5", name: "Investor", desc: "Connect brokerages — Penny suggests trades, you approve." },
-  { tag: "v1.0", name: "Regulated", desc: "SEBI-authorized: advice-grade, compliant execution." },
-];
-
-const TECH = ["Next.js", "FastAPI", "PostgreSQL", "Open-source LLM", "RAG knowledge base"];
+export const metadata = {
+  title: "Penny — Your money, finally understood",
+  description:
+    "Penny is an AI financial assistant that tracks your assets, analyses your finances and turns them into clear, AI-powered advice.",
+};
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-bg text-ink relative overflow-hidden">
-      <LandingMotion />
-      {/* Atmosphere */}
-      <div className="pointer-events-none absolute -top-40 -left-20 h-[560px] w-[560px] rounded-full bg-accent/12 blur-[150px]" />
-      <div className="pointer-events-none absolute top-1/4 -right-24 h-[460px] w-[460px] rounded-full bg-emerald/10 blur-[150px]" />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
-        style={{ backgroundImage: "radial-gradient(var(--text) 1px, transparent 1px)", backgroundSize: "32px 32px" }}
-      />
+    <div className="penny-root">
+      {/* ===================== FLOATING SCENE (parallax) ===================== */}
+      <div className="scene" aria-hidden="true">
+        <Floaty pos={{ left: "8%", top: 130 }} speed={0.18} spin={1.2} pose="rotateX(14deg) rotateY(-18deg) rotateZ(-8deg)" bob={bob("8s", ".2s", "3deg")}>
+          <Card variant="green" label="DEBIT" num="5412  7790  0042  8810" name="Tracked" valid="VALID 09/29" />
+        </Floaty>
+        <Floaty pos={{ right: "7%", top: 240 }} speed={0.3} spin={-1.6} pose="rotateX(20deg) rotateY(22deg) rotateZ(9deg)" bob={bob("9.5s", ".6s", "-4deg")}>
+          <Card variant="dark" label="BLACK" num="4920  1183  6657  2204" name="Net worth" valid="LIVE" />
+        </Floaty>
+        <Floaty pos={{ left: "18%", top: 560 }} speed={0.42} spin={2.2} pose="rotateX(-10deg) rotateY(26deg) rotateZ(-12deg)" bob={bob("7s", ".1s", "4deg")}>
+          <span className="coin coin--gold" style={coin(96, 34)}>₹</span>
+        </Floaty>
+        <Floaty extra pos={{ right: "20%", top: 610 }} speed={0.55} spin={-2.4} pose="rotateY(-20deg) rotateZ(8deg)" bob={bob("6.4s", ".4s", "6deg")}>
+          <span className="token token--btc" style={coin(78, 34)}>₿</span>
+        </Floaty>
+        <Floaty pos={{ left: "46%", top: 80 }} speed={0.62} spin={1.0} bob={bob("5.5s", ".9s", "0deg")}>
+          <span className="orb" style={{ width: 120, height: 120 }} />
+        </Floaty>
+        <Floaty extra pos={{ left: "4%", top: 780 }} speed={0.5} spin={-1.2} pose="rotateY(16deg) rotateZ(-6deg)" bob={bob("8.8s", ".3s", "-3deg")}>
+          <span className="token token--eth" style={coin(66, 30)}>Ξ</span>
+        </Floaty>
 
-      {/* Nav */}
-      <header className="relative z-20 max-w-7xl mx-auto flex items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accent-ink font-display font-extrabold text-lg shadow-[0_0_24px_var(--glow)]">P</span>
-          <span className="font-display text-xl font-extrabold tracking-tight">Penny</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-muted">
-          <a href="#features" className="hover:text-ink transition-colors">Features</a>
-          <a href="#roadmap" className="hover:text-ink transition-colors">Roadmap</a>
-          <a href="#tech" className="hover:text-ink transition-colors">Tech</a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Link href="/login" className="hidden sm:inline text-sm font-medium text-muted hover:text-ink transition-colors">Sign in</Link>
-          <Link href="/signup" className="px-4 py-2 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5">
-            Get started
-          </Link>
+        <Floaty pos={{ right: "5%", top: 1500 }} speed={0.34} spin={1.5} pose="rotateX(12deg) rotateY(-24deg) rotateZ(7deg)" bob={bob("9s", ".2s", "4deg")}>
+          <span className="coin coin--green" style={coin(70, 26)}>P</span>
+        </Floaty>
+        <Floaty extra pos={{ left: "6%", top: 1750 }} speed={0.48} spin={-2.0} pose="rotateY(28deg) rotateZ(-10deg)" bob={bob("7.6s", ".7s", "5deg")}>
+          <span className="coin coin--copper" style={coin(60, 22)}>¢</span>
+        </Floaty>
+        <Floaty pos={{ left: "2%", top: 2150 }} speed={0.4} spin={1.1} pose="rotateX(16deg) rotateY(20deg) rotateZ(10deg)" bob={bob("10s", ".5s", "-4deg")}>
+          <Card variant="gold" label="GOLD" num="3781  8829  1000  55" />
+        </Floaty>
+
+        <Floaty extra pos={{ right: "4%", top: 2700 }} speed={0.52} spin={-1.4} bob={bob("6s", ".2s")}>
+          <span className="orb orb--dim" style={{ width: 90, height: 90 }} />
+        </Floaty>
+        <Floaty pos={{ left: "5%", top: 3050 }} speed={0.36} spin={2.0} pose="rotateY(-22deg) rotateZ(8deg)" bob={bob("8.2s", ".6s", "5deg")}>
+          <span className="token token--btc" style={coin(58, 26)}>₿</span>
+        </Floaty>
+        <Floaty extra pos={{ right: "8%", top: 3550 }} speed={0.44} spin={-1.8} pose="rotateX(10deg) rotateY(24deg) rotateZ(-9deg)" bob={bob("9.3s", ".3s", "4deg")}>
+          <span className="coin coin--gold" style={coin(64, 24)}>₹</span>
+        </Floaty>
+        <Floaty pos={{ right: "5%", top: 3950 }} speed={0.38} spin={1.7} pose="rotateY(-26deg) rotateZ(9deg)" bob={bob("8.5s", ".4s", "4deg")}>
+          <span className="orb" style={{ width: 80, height: 80 }} />
+        </Floaty>
+      </div>
+
+      {/* ===================== NAV ===================== */}
+      <nav className="nav-inner" aria-label="Primary">
+        <Link className="brand" href="#top"><span className="coin-mark">P</span>Penny</Link>
+        <div className="nav-links">
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+          <a href="#demo">Meet Penny</a>
+          <a href="#roadmap">Roadmap</a>
+        </div>
+        <div className="nav-cta">
+          <Link href="/login" className="nav-signin" style={{ fontSize: 14, color: "var(--ink-dim)" }}>Sign in</Link>
+          <Link className="btn btn-primary" href="/signup">Get started</Link>
+        </div>
+      </nav>
+
+      {/* ===================== HERO ===================== */}
+      <header className="hero section" id="top">
+        <div className="ghost-word">Penny</div>
+        <div className="wrap hero-inner">
+          <span className="eyebrow">Your AI financial assistant</span>
+          <h1>Your money,<br />finally <span className="script">understood.</span></h1>
+          <p className="sub">Penny tracks all your assets, analyses your finances, and turns the numbers into clear, AI-powered advice — growing from a personal tracker into a SEBI-compliant robo-adviser.</p>
+          <div className="hero-cta">
+            <Link className="btn btn-primary" href="/signup">Get started <span className="btn-arrow">→</span></Link>
+            <a href="#how" className="btn btn-ghost">See how it works</a>
+          </div>
+          <div className="hero-trust">
+            <span><b>₹0</b> hidden fees</span>
+            <span><b>100%</b> data control</span>
+            <span><b>Open-source</b> AI</span>
+          </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-20 grid lg:grid-cols-2 gap-14 items-center">
-        <div className="animate-rise">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-border text-xs font-medium text-muted mb-6">
-            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            The AI financial assistant
-          </span>
-          <h1 className="font-display text-5xl md:text-6xl lg:text-[4.2rem] font-extrabold leading-[1.02] tracking-tight">
-            Manage and grow
-            <br />
-            your money,{" "}
-            <span className="text-accent">intelligently.</span>
-          </h1>
-          <p className="text-lg text-muted mt-6 max-w-xl text-balance">
-            Penny tracks all your assets, analyzes your finances, and turns the numbers into
-            clear, actionable advice — on a roadmap from tracker to fully-fledged, SEBI-compliant robo-advisor.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 mt-9">
-            <Link href="/signup" className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink font-semibold transition-all shadow-[0_0_36px_var(--glow)] hover:-translate-y-1">
-              Start for free <IconArrow />
-            </Link>
-            <Link href="/login" className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-surface hover:bg-surface-2 border border-border font-semibold transition-all">
-              Sign in
-            </Link>
+      {/* ===================== HOW IT WORKS ===================== */}
+      <section className="how section" id="how">
+        <div className="wrap">
+          <div className="sec-head reveal">
+            <span className="eyebrow">How Penny works</span>
+            <h2>Three steps to a money mind <span className="script">that never sleeps</span></h2>
           </div>
-          <div className="flex items-center gap-8 mt-10 pt-8 border-t border-border">
-            {[["₹0", "Hidden fees"], ["100%", "Data control"], ["24/7", "Access"]].map(([n, l]) => (
-              <div key={l}>
-                <p className="font-display text-2xl font-bold">{n}</p>
-                <p className="text-xs text-faint uppercase tracking-wider mt-0.5">{l}</p>
+          <div className="steps">
+            <div className="step reveal"><span className="step-line" />
+              <div className="step-ico">🔗</div>
+              <h3>Add your money</h3>
+              <p>Log bank balances, stocks, crypto, gold and loans. Penny unifies everything into one live net-worth picture.</p>
+            </div>
+            <div className="step reveal d1"><span className="step-line" />
+              <div className="step-ico">📊</div>
+              <h3>See the full picture</h3>
+              <p>A net-worth dashboard, spending analytics and 6-month trends turn raw numbers into real clarity.</p>
+            </div>
+            <div className="step reveal d2"><span className="step-line" />
+              <div className="step-ico">✨</div>
+              <h3>Ask Penny AI</h3>
+              <p>Get a plain-language report — where you overspent, where to cut, and how to grow savings — tailored to your goals.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== FEATURES ===================== */}
+      <section className="features section" id="features">
+        <div className="wrap">
+          <div className="sec-head reveal">
+            <span className="eyebrow">Capabilities</span>
+            <h2>Everything your money <span className="script">wishes it could tell you</span></h2>
+          </div>
+          <div className="feat-grid">
+            <div className="feat span-2 reveal"><div className="f-ico">🔍</div><h3>Spending X-ray</h3><p>See exactly where every rupee went, grouped by category with monthly trends — no more mystery charges.</p></div>
+            <div className="feat span-2 reveal d1"><div className="f-ico">🪙</div><h3>Every asset, one view</h3><p>Bank, cash, stocks, crypto, gold and loans rolled into a single net-worth figure.</p></div>
+            <div className="feat span-2 reveal d2"><div className="f-ico">💱</div><h3>Multi-currency</h3><p>Hold and view your wealth in INR, USD, EUR or GBP, with live FX on the way.</p></div>
+
+            <div className="feat span-3 feat-big reveal"><div>
+              <div className="f-ico">🤖</div><h3>An adviser grounded in your numbers</h3>
+              <p>Penny&apos;s AI reads your real data and writes a tailored report: summary, where you overspent, what to cut, and how to grow savings and net worth.</p></div>
+              <div className="stat-row">
+                <div className="stat"><div className="n">4</div><div className="l">report types</div></div>
+                <div className="stat"><div className="n">₹-aware</div><div className="l">advice, in your currency</div></div>
+              </div>
+            </div>
+            <div className="feat span-3 feat-big reveal d1"><div>
+              <div className="f-ico">🔒</div><h3>Private by design</h3>
+              <p>Secure sign-in, read-only by default, and your financial data is never sold. Penny works for you — full stop.</p></div>
+              <div className="stat-row">
+                <div className="stat"><div className="n">100%</div><div className="l">your data, your control</div></div>
+                <div className="stat"><div className="n">0</div><div className="l">data ever sold</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== AI CHAT DEMO ===================== */}
+      <section className="demo section" id="demo">
+        <div className="wrap">
+          <div className="demo-grid">
+            <div className="demo-copy reveal">
+              <span className="eyebrow">Meet Penny</span>
+              <h2>Talk to your money <span className="script">like a person</span></h2>
+              <p className="lead">No dashboards to decode. Ask in plain words — Penny answers with the real numbers behind it. Tap a question to see for yourself. 👉</p>
+              <ul className="feat-list">
+                <li><span className="tick">✓</span><span>Reads your real assets, spending and goals.</span></li>
+                <li><span className="tick">✓</span><span>Replies in plain language, with the figures.</span></li>
+                <li><span className="tick">✓</span><span>Turns every insight into a next step.</span></li>
+              </ul>
+            </div>
+
+            <div className="reveal d1">
+              <div className="phone">
+                <div className="notch" />
+                <div className="screen">
+                  <div className="screen-top">
+                    <span className="av">P</span>
+                    <div><div className="who">Penny</div><div className="stat-txt">AI financial assistant</div></div>
+                    <span className="stat-dot" />
+                  </div>
+                  <div className="chat" id="penny-chat" />
+                  <div className="composer">
+                    <div className="prompts" id="penny-prompts">
+                      <button className="prompt-chip" data-key="spend">Where did my money go?</button>
+                      <button className="prompt-chip" data-key="save">Am I saving enough?</button>
+                      <button className="prompt-chip" data-key="networth">How&apos;s my net worth?</button>
+                      <button className="prompt-chip" data-key="goals">What about my goals?</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== ROADMAP ===================== */}
+      <section className="roadmap section" id="roadmap">
+        <div className="wrap">
+          <div className="sec-head reveal">
+            <span className="eyebrow">The vision</span>
+            <h2>From tracker to <span className="script">regulated fintech</span></h2>
+            <p>Penny grows in public — each release moves from simply tracking your money to actively growing it.</p>
+          </div>
+          <div className="road-grid">
+            {ROADMAP.map((r, i) => (
+              <div key={r.tag} className={`road reveal${i % 3 === 1 ? " d1" : i % 3 === 2 ? " d2" : ""}${r.live ? " live" : ""}`}>
+                <span className="big">{i + 1}</span>
+                <span className="tag">{r.tag}</span>
+                <h3>{r.name}</h3>
+                <p>{r.desc}</p>
+                {r.live && <span className="pill">Available now</span>}
               </div>
             ))}
           </div>
         </div>
-
-        {/* Dashboard mock */}
-        <div className="relative animate-rise" style={{ animationDelay: "120ms" }}>
-          <DashboardMock />
-        </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-        <SectionHeading kicker="What it does" title="Everything you need to see your money clearly" />
-        <div data-animate-group className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
-          {FEATURES.map((f) => (
-            <div key={f.title} data-animate-item className="rounded-3xl bg-surface border border-border p-6 hover:border-border-strong transition-colors">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent/15 text-accent mb-4">{f.icon}</span>
-              <h3 className="font-display text-lg font-bold">{f.title}</h3>
-              <p className="text-sm text-muted mt-1.5 leading-relaxed">{f.body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* AI showcase */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-        <div className="rounded-[2rem] border border-border bg-linear-to-b from-accent/8 to-transparent p-8 sm:p-12">
-          <SectionHeading kicker="Penny AI" title="Advice that reads like a human wrote it" center />
-          <div data-animate-group className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-            <AICard tone="warn" title="Spending alert" body="You spent 35% on food this month. Trimming toward 20% could save you ₹6,000." />
-            <AICard tone="good" title="Savings plan" body="Invest ₹5,000/month in index funds and build a ₹1.5 lakh emergency fund." />
-            <AICard tone="info" title="Allocation" body="50% index funds · 20% bonds · 20% stocks · 10% gold, tuned to your risk profile." />
+      {/* ===================== FOOTER CTA ===================== */}
+      <section className="footer-cta section">
+        <div className="wrap">
+          <span className="eyebrow reveal" style={{ justifyContent: "center", display: "flex" }}>Start free</span>
+          <h2 className="reveal">Your money has a lot<br />to say. Let it <span className="script">speak.</span></h2>
+          <p className="sub reveal d1">Free to use. Your data stays yours.</p>
+          <div className="hero-cta reveal d1" style={{ marginTop: 30 }}>
+            <Link className="btn btn-primary" href="/signup">Get started <span className="btn-arrow">→</span></Link>
+            <Link className="btn btn-ghost" href="/login">Sign in</Link>
           </div>
-          <p className="text-center text-xs text-faint mt-8">Powered by an open-source LLM over a RAG knowledge base of financial principles.</p>
+          <div className="foot-note reveal d1">Free · No card required · You control your data</div>
         </div>
       </section>
 
-      {/* Roadmap */}
-      <section id="roadmap" className="relative z-10 max-w-7xl mx-auto px-6 py-20">
-        <SectionHeading kicker="The vision" title="From tracker to regulated fintech" />
-        <div data-animate-group className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
-          {ROADMAP.map((r, i) => (
-            <div key={r.tag} data-animate-item className="relative rounded-3xl bg-surface border border-border p-6 overflow-hidden">
-              <span className="absolute top-5 right-5 font-display text-5xl font-extrabold text-border-strong/40 select-none">{i + 1}</span>
-              <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent/15 text-accent mb-3">{r.tag}</span>
-              <h3 className="font-display text-xl font-bold">{r.name}</h3>
-              <p className="text-sm text-muted mt-1.5 leading-relaxed">{r.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Tech */}
-      <section id="tech" className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-        <div className="flex flex-col items-center gap-6">
-          <p className="text-xs font-semibold text-faint uppercase tracking-[0.18em]">Built with a modern stack</p>
-          <div data-animate-group className="flex flex-wrap items-center justify-center gap-3">
-            {TECH.map((t) => (
-              <span key={t} data-animate-item className="px-4 py-2 rounded-full bg-surface-2 border border-border text-sm font-medium text-muted">{t}</span>
-            ))}
+      <footer className="site">
+        <div className="wrap row">
+          <Link className="brand" href="#top"><span className="coin-mark">P</span>Penny</Link>
+          <div className="links">
+            <a href="#how">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#demo">Meet Penny</a>
+            <a href="#roadmap">Roadmap</a>
           </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="relative z-10 max-w-5xl mx-auto px-6 py-20">
-        <div data-animate className="relative rounded-[2rem] bg-accent text-accent-ink p-10 sm:p-16 text-center overflow-hidden">
-          <div className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-black/10 blur-2xl" />
-          <h2 className="font-display text-3xl sm:text-5xl font-extrabold tracking-tight">Start growing your wealth today</h2>
-          <p className="mt-4 text-accent-ink/80 max-w-xl mx-auto">Free to start, no hidden fees, full control of your data.</p>
-          <Link href="/signup" className="inline-flex items-center gap-2 mt-8 px-8 py-3.5 rounded-full bg-accent-ink text-accent font-semibold transition-transform hover:-translate-y-1">
-            Create your account <IconArrow />
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-accent-ink font-display font-extrabold text-sm">P</span>
-            <span className="font-display font-bold">Penny</span>
-          </div>
-          <p className="text-xs text-faint">Built by Koustav Manna · Penny is not yet a registered investment advisor.</p>
+          <div className="copy">© 2026 Penny · Built by Koustav Manna</div>
         </div>
       </footer>
+
+      <PennyLandingScripts />
     </div>
   );
 }
 
-function SectionHeading({ kicker, title, center }: { kicker: string; title: string; center?: boolean }) {
+const ROADMAP = [
+  { tag: "v0.1", name: "Tracker", desc: "Track assets, expenses and net worth in one place.", live: true },
+  { tag: "v0.2", name: "AI Adviser", desc: "Goal planning, risk profiling and SIP/savings strategy from a RAG knowledge base.", live: false },
+  { tag: "v0.3", name: "Assistant", desc: "Live market & crypto data, price alerts and portfolio recommendations.", live: false },
+  { tag: "v0.4", name: "Planner", desc: "Asset allocation, rebalancing, strategy simulation and backtesting.", live: false },
+  { tag: "v0.5", name: "Investor", desc: "Connect Zerodha, Upstox or Binance — Penny suggests trades, you approve.", live: false },
+  { tag: "v1.0", name: "Regulated", desc: "SEBI-authorised adviser: compliant, advice-grade automation.", live: false },
+];
+
+function bob(dur: string, delay: string, wobble?: string): CSS {
+  return { "--dur": dur, "--delay": delay, ...(wobble ? { "--wobble": wobble } : {}) } as CSS;
+}
+function coin(size: number, font: number): CSS {
+  return { width: size, height: size, fontSize: font };
+}
+
+function Floaty({
+  pos, speed, spin, pose, bob, extra, children,
+}: {
+  pos: CSS; speed: number; spin: number; pose?: string; bob: CSS; extra?: boolean; children: React.ReactNode;
+}) {
   return (
-    <div data-animate className={center ? "text-center max-w-2xl mx-auto" : "max-w-2xl"}>
-      <p className="text-xs font-semibold text-accent uppercase tracking-[0.18em] mb-3">{kicker}</p>
-      <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight">{title}</h2>
+    <div className={`floaty${extra ? " tier-extra" : ""}`} style={pos} data-speed={speed} data-spin={spin}>
+      <div className="pose" style={pose ? { transform: pose } : undefined}>
+        <div className="bob" style={bob}>{children}</div>
+      </div>
     </div>
   );
 }
 
-function AICard({ tone, title, body }: { tone: "good" | "warn" | "info"; title: string; body: string }) {
-  const dot = tone === "good" ? "bg-positive" : tone === "warn" ? "bg-negative" : "bg-accent";
+function Card({
+  variant, label, num, name, valid,
+}: {
+  variant: "green" | "dark" | "gold"; label: string; num: string; name?: string; valid?: string;
+}) {
   return (
-    <div data-animate-item className="rounded-2xl bg-surface border border-border p-5 text-left">
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`h-2 w-2 rounded-full ${dot}`} />
-        <span className="text-sm font-semibold">{title}</span>
+    <div className={`card3d card--${variant}`} style={variant === "gold" ? { width: 250 } : undefined}>
+      <div className="c-top">
+        <span className="c-brand"><span className="c-dot" />Penny</span>
+        <span className="c-num" style={{ fontSize: 11, letterSpacing: ".18em" }}>{label}</span>
       </div>
-      <p className="text-sm text-muted leading-relaxed">{body}</p>
+      <div className="chip" />
+      <div className="c-num" style={variant === "gold" ? { fontSize: 13 } : undefined}>{num}</div>
+      {(name || valid) && (
+        <div className="c-foot"><span>{name}</span><span>{valid}</span></div>
+      )}
     </div>
   );
 }
-
-function DashboardMock() {
-  const bars = [42, 58, 50, 71, 64, 88];
-  return (
-    <div className="rounded-[1.75rem] border border-border bg-surface shadow-[var(--shadow)] p-6 rotate-1 hover:rotate-0 transition-transform duration-500">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-faint">Net Worth</p>
-          <p className="font-display text-3xl font-extrabold tabular-nums">₹12,84,500</p>
-        </div>
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-positive/15 text-positive text-xs font-semibold">▲ 8.2%</span>
-      </div>
-      <div className="flex items-end gap-2 h-28 mb-5">
-        {bars.map((h, i) => (
-          <div key={i} className="flex-1 flex items-end" style={{ height: "100%" }}>
-            <div className={`w-full rounded-t-md ${i === bars.length - 1 ? "bg-accent" : "bg-border-strong"}`} style={{ height: `${h}%` }} />
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-3 gap-2">
-        {[["Stocks", "42%"], ["Crypto", "14%"], ["Bank", "44%"]].map(([k, v]) => (
-          <div key={k} className="rounded-xl bg-surface-2 border border-border p-3">
-            <p className="text-[11px] text-faint">{k}</p>
-            <p className="font-display font-bold">{v}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* — icons — */
-function IconArrow() { return (<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>); }
-function IconWallet() { return (<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9" /></svg>); }
-function IconReceipt() { return (<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z" /></svg>); }
-function IconChart() { return (<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>); }
-function IconSpark() { return (<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>); }
-function IconGlobe() { return (<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m-9 9h18" /></svg>); }
-function IconShield() { return (<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 5.25-3.75 9-9 9s-9-3.75-9-9 3.75-9 9-9 9 3.75 9 9z" /></svg>); }
