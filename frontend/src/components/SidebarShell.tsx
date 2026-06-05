@@ -62,7 +62,7 @@ export default function SidebarShell({
 
       {/* Sidebar / drawer */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 lg:w-64 min-h-screen overflow-hidden border-r border-border bg-bg-elev/95 lg:bg-bg-elev/60 backdrop-blur-xl flex flex-col px-4 py-6 shrink-0 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 overflow-hidden border-r border-border bg-bg-elev/95 lg:bg-bg-elev/85 backdrop-blur-xl flex flex-col px-4 py-6 transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           open ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >

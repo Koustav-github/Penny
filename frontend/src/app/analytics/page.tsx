@@ -11,7 +11,7 @@ export default async function AnalyticsPage() {
     <div className="min-h-screen bg-bg flex relative overflow-hidden">
       <div className="pointer-events-none absolute -top-40 -left-32 h-[520px] w-[520px] rounded-full bg-accent/10 blur-[150px]" />
       <AppSidebar active="analytics" />
-      <main className="flex-1 flex flex-col min-h-screen relative z-10 pt-14 lg:pt-0">
+      <main className="flex-1 flex flex-col min-h-screen relative z-10 pt-14 lg:pt-0 lg:ml-64">
         <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 border-b border-border">
           <div>
             <h1 className="font-display text-2xl font-bold text-ink tracking-tight">Analytics</h1>

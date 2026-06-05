@@ -88,7 +88,7 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
     : "";
 
   return (
-    <main className="flex-1 flex flex-col min-h-screen relative z-10 pt-14 lg:pt-0">
+    <main className="flex-1 flex flex-col min-h-screen relative z-10 pt-14 lg:pt-0 lg:ml-64">
       {/* Top bar */}
       <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 border-b border-border">
         <div>
