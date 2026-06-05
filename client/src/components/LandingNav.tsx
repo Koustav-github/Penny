@@ -27,7 +27,7 @@ export default function LandingNav() {
     <>
       <nav className="nav-inner" aria-label="Primary">
         <Link className="brand" href="#top" onClick={() => setOpen(false)}>
-          <span className="coin-mark">P</span>Penny
+          <span className="coin-mark">P</span><span className="brand-word">Penny</span>
         </Link>
 
         <div className="nav-links">

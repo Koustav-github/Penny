@@ -133,6 +133,12 @@ body {
   background-clip: content-box;
 }
 
+/* Hide the page (document) scrollbar so locking scroll during the loader
+   doesn't reflow the layout — the shift you see between loader and page.
+   Inner scroll regions keep their thin themed scrollbar. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
 /* Lenis smooth-scroll (landing page) */
 html.lenis,
 html.lenis body { height: auto; }
@@ -183,3 +189,101 @@ html.lenis body { height: auto; }
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ============================================================
+   PENNY — page loader
+   A shaded sphere flips its glyph (P → $ → P → ₹) then flies into
+   the nav brand logo on first load; a quick spin on page shifts.
+   ============================================================ */
+#penny-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+#penny-loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  transition: opacity 0.6s ease;
+}
+#penny-loader.revealing::before { opacity: 0; }
+#penny-loader.fade-out { transition: opacity 0.4s ease; opacity: 0; }
+#penny-loader.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#penny-loader .loader-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 156px;
+  height: 156px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  will-change: transform;
+  box-shadow: 0 40px 80px -24px var(--glow), 0 0 80px -6px var(--glow);
+}
+/* The coin — a minted disc with a raised, milled rim and a recessed face that
+   flips on its Y axis (edge-on at 90°), swapping its glyph. */
+#penny-loader .lo-coin {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  background: radial-gradient(circle at 50% 40%, #f2ffba 0%, var(--accent) 44%, var(--accent-press) 86%, #6f9c12 100%);
+  box-shadow:
+    0 8px 18px -4px rgba(0, 0, 0, 0.5),          /* drop shadow */
+    inset 0 3px 3px rgba(255, 255, 255, 0.55),   /* rim top highlight */
+    inset 0 -3px 4px rgba(0, 0, 0, 0.42),        /* rim bottom shade */
+    inset 0 0 0 8px rgba(0, 0, 0, 0.12),         /* groove between rim and face */
+    inset 0 0 20px 9px rgba(0, 0, 0, 0.16);      /* recessed-face vignette */
+}
+/* Milled / reeded edge around the circumference */
+#penny-loader .lo-coin::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg,
+    rgba(0, 0, 0, 0.28) 0deg 2.2deg, rgba(255, 255, 255, 0.22) 2.2deg 4.4deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 calc(50% - 9px), #000 calc(50% - 9px) 50%);
+  mask: radial-gradient(circle, transparent 0 calc(50% - 9px), #000 calc(50% - 9px) 50%);
+  opacity: 0.55;
+}
+/* Raised inner ring framing the glyph */
+#penny-loader .lo-coin::after {
+  content: "";
+  position: absolute;
+  inset: 17px;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.45),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.32),
+    0 1px 0 rgba(255, 255, 255, 0.25);
+}
+#penny-loader .lo-glyph {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 66px;
+  line-height: 1;
+  color: #1c4a12;
+  /* embossed: light pressed up top, shadow below */
+  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.45), 0 2px 3px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.18s ease;
+  user-select: none;
+}
+
+/* While the loader runs, hide the nav logo it lands on so there's never a
+   pre-mounted duplicate — it fades in exactly as the orb settles onto it. */
+html.penny-loading .penny-root .brand .coin-mark { opacity: 0; }

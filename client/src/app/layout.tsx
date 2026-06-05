@@ -8,6 +8,7 @@ import {
   Space_Mono,
 } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import PennyLoader from "@/components/PennyLoader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -69,6 +70,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body className="min-h-full flex flex-col bg-bg text-ink">
+        <PennyLoader />
         <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>

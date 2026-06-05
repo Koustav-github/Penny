@@ -78,17 +78,38 @@ export default function Home() {
       <header className="hero section" id="top">
         <div className="ghost-word">Penny</div>
         <div className="wrap hero-inner">
-          <span className="eyebrow">Your AI financial assistant</span>
-          <h1>Your money,<br />finally <span className="script">understood.</span></h1>
-          <p className="sub">Penny tracks all your assets, analyses your finances, and turns the numbers into clear, AI-powered advice — growing from a personal tracker into a SEBI-compliant robo-adviser.</p>
-          <div className="hero-cta">
-            <Link className="btn btn-primary" href="/signup">Get started <span className="btn-arrow">→</span></Link>
-            <a href="#how" className="btn btn-ghost">See how it works</a>
-          </div>
-          <div className="hero-trust">
-            <span><b>₹0</b> hidden fees</span>
-            <span><b>100%</b> data control</span>
-            <span><b>Open-source</b> AI</span>
+          <div className="hero-stage">
+            <div className="hero-copy">
+              <span className="eyebrow">Your AI financial assistant</span>
+              <h1>Your money,<br />finally <span className="script">understood.</span></h1>
+              <p className="sub">Penny tracks all your assets, analyses your finances, and turns the numbers into clear, AI-powered advice — growing from a personal tracker into a SEBI-compliant robo-adviser.</p>
+              <div className="hero-cta">
+                <Link className="btn btn-primary" href="/signup">Get started <span className="btn-arrow">→</span></Link>
+                <a href="#how" className="btn btn-ghost">See how it works</a>
+              </div>
+              <div className="hero-trust">
+                <span><b>₹0</b> hidden fees</span>
+                <span><b>100%</b> data control</span>
+                <span><b>Open-source</b> AI</span>
+              </div>
+            </div>
+
+            <div className="hero-laptop" aria-hidden="true">
+              <div className="laptop">
+                <div className="laptop-screen">
+                  <span className="cam" />
+                  <div className="app">
+                    <div className="app-top">
+                      <span className="dots"><i /><i /><i /></span>
+                      <span className="app-title"><span className="av">P</span>Penny — Assistant</span>
+                      <span className="stat-dot" />
+                    </div>
+                    <div className="chat" id="penny-hero-chat" />
+                  </div>
+                </div>
+                <div className="laptop-base" />
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -181,10 +202,10 @@ export default function Home() {
                   <div className="chat" id="penny-chat" />
                   <div className="composer">
                     <div className="prompts" id="penny-prompts">
-                      <button className="prompt-chip" data-key="spend">Where did my money go?</button>
-                      <button className="prompt-chip" data-key="save">Am I saving enough?</button>
-                      <button className="prompt-chip" data-key="networth">How&apos;s my net worth?</button>
-                      <button className="prompt-chip" data-key="goals">What about my goals?</button>
+                      <button className="prompt-chip" data-key="emergency">Do I have a safety net?</button>
+                      <button className="prompt-chip" data-key="invest">Where should I invest?</button>
+                      <button className="prompt-chip" data-key="debt">Clear my loan first?</button>
+                      <button className="prompt-chip" data-key="subs">Any wasteful spending?</button>
                     </div>
                   </div>
                 </div>
@@ -200,7 +221,6 @@ export default function Home() {
           <div className="sec-head reveal">
             <span className="eyebrow">The vision</span>
             <h2>From tracker to <span className="script">regulated fintech</span></h2>
-            <p>Penny grows in public — each release moves from simply tracking your money to actively growing it.</p>
           </div>
           <div className="road-grid">
             {ROADMAP.map((r, i) => (
@@ -233,12 +253,6 @@ export default function Home() {
       <footer className="site">
         <div className="wrap row">
           <Link className="brand" href="#top"><span className="coin-mark">P</span>Penny</Link>
-          <div className="links">
-            <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#demo">Meet Penny</a>
-            <a href="#roadmap">Roadmap</a>
-          </div>
           <div className="copy">© 2026 Penny · Built by Koustav Manna</div>
         </div>
       </footer>

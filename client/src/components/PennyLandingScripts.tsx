@@ -32,6 +32,23 @@ const CONVO: Record<string, Convo> = {
     penny: 'You&apos;re on pace for <b>“Buy a house in 5 years”</b>. Keep saving ₹20,000/mo and you&apos;ll get there on time.',
     card: { label: 'Goal progress', pct: 40, note: 'Long-term · on track' },
   },
+  // Demo-phone topics (kept distinct from the hero laptop's four).
+  emergency: {
+    penny: 'Your liquid savings cover about <b>1.8 months</b> of expenses. Aim for <b>3–6 months</b> — roughly <b>₹2.1 lakh</b> — so a pause in income won&apos;t hurt.',
+    card: { label: 'Emergency fund', pct: 30, note: '₹63,000 of ₹2.1L target' },
+  },
+  invest: {
+    penny: 'For a moderate risk profile, an <b>₹8,000/mo</b> split — 60% index funds, 25% debt, 15% gold — balances growth and safety over your horizon.',
+    card: { label: 'Suggested mix', pct: 60, note: 'Index-led · moderate risk' },
+  },
+  debt: {
+    penny: 'Your loan EMI is <b>₹18,500/mo</b> at a high rate. Clearing it returns more than most investments would — prioritise it before extra SIPs.',
+    card: { label: 'Loan payoff', pct: 45, note: '₹4.2L left · high interest' },
+  },
+  subs: {
+    penny: 'You have <b>7 active subscriptions</b> totalling <b>₹3,400/mo</b>. Three went unused last month — cancelling them saves <b>₹16,800/yr</b>.',
+    card: { label: 'Subscriptions', pct: 70, note: '₹3,400/mo · 3 unused' },
+  },
 }
 
 export default function PennyLandingScripts() {
@@ -40,14 +57,39 @@ export default function PennyLandingScripts() {
     const floaties = Array.from(document.querySelectorAll<HTMLElement>('.floaty'))
     const nav = document.querySelector('.nav-inner')
 
+    // Collapse the nav into the logo once scrolled past COLLAPSE_AT; clicking the
+    // logo reveals it again, and scrolling further re-collapses it.
+    const COLLAPSE_AT = 90
+    let navOpen = false
+    let openedAtY = 0
+    let lastY = 0
+
     const applyParallax = (y: number) => {
+      lastY = y
       for (const el of floaties) {
         const speed = parseFloat(el.dataset.speed || '0')
         const spin = parseFloat(el.dataset.spin || '0')
         el.style.transform = `translate3d(0,${(-y * speed).toFixed(1)}px,0) rotate(${(y * spin * 0.012).toFixed(2)}deg)`
       }
-      if (nav) nav.classList.toggle('scrolled', y > 30)
+      if (nav) {
+        nav.classList.toggle('scrolled', y > 30)
+        if (y <= COLLAPSE_AT || (navOpen && Math.abs(y - openedAtY) > 40)) navOpen = false
+        nav.classList.toggle('collapsed', y > COLLAPSE_AT && !navOpen)
+      }
     }
+
+    // Click the collapsed logo to reopen (capture phase so it beats the
+    // anchor scroll-to-top handler on the brand link).
+    const onNavClick = (e: Event) => {
+      if (nav && nav.classList.contains('collapsed')) {
+        e.preventDefault()
+        e.stopPropagation()
+        navOpen = true
+        openedAtY = lastY
+        nav.classList.remove('collapsed')
+      }
+    }
+    nav?.addEventListener('click', onNavClick, true)
 
     let lenis: Lenis | null = null
     let onScroll: (() => void) | null = null
@@ -151,10 +193,79 @@ export default function PennyLandingScripts() {
       greet.classList.add('show')
     }
 
+    // Hero auto-demo: same scripted convo, but plays itself on a loop like a
+    // short video. Desktop-only (the phone is hidden under 1024px in CSS), and
+    // degrades to a static filled chat when reduced motion is preferred.
+    const heroChat = document.getElementById('penny-hero-chat')
+    const HERO_SCRIPT: { key: keyof typeof CONVO; q: string }[] = [
+      { key: 'spend', q: 'Where did my money go?' },
+      { key: 'save', q: 'Am I saving enough?' },
+      { key: 'networth', q: "How's my net worth?" },
+      { key: 'goals', q: 'What about my goals?' },
+    ]
+    const pennyHtml = (key: keyof typeof CONVO) => {
+      const c = CONVO[key]
+      let html = c.penny
+      if (c.card) {
+        html += `<div class="mini-card"><div style="font-size:12px;color:var(--p-muted);font-family:var(--font-pmono);letter-spacing:.04em">${c.card.label}</div><div class="bar"><i style="width:${c.card.pct}%"></i></div><div style="font-size:12.5px;color:var(--ink-dim)">${c.card.note}</div></div>`
+      }
+      return html
+    }
+    let heroStop = false
+    const heroTimers: ReturnType<typeof setTimeout>[] = []
+    const wait = (ms: number) =>
+      new Promise<void>((res) => heroTimers.push(setTimeout(res, ms)))
+    const heroAdd = (cls: string, html: string) => {
+      if (!heroChat) return
+      const node = mk('div', cls, html)
+      heroChat.appendChild(node)
+      requestAnimationFrame(() => node.classList.add('show'))
+      heroChat.scrollTop = heroChat.scrollHeight
+    }
+
+    if (heroChat) {
+      if (reduce || !window.matchMedia('(min-width: 1024px)').matches) {
+        // Static snapshot — no looping animation.
+        for (const { key, q } of HERO_SCRIPT) {
+          const u = mk('div', 'bubble user', q)
+          u.classList.add('show')
+          heroChat.appendChild(u)
+          const p = mk('div', 'bubble penny', pennyHtml(key))
+          p.classList.add('show')
+          heroChat.appendChild(p)
+        }
+      } else {
+        const runHeroLoop = async () => {
+          while (!heroStop) {
+            heroChat.replaceChildren()
+            for (const { key, q } of HERO_SCRIPT) {
+              if (heroStop) return
+              heroAdd('bubble user', q)
+              await wait(620)
+              if (heroStop) return
+              const typing = mk('div', 'typing', '<span></span><span></span><span></span>')
+              heroChat.appendChild(typing)
+              heroChat.scrollTop = heroChat.scrollHeight
+              await wait(1050)
+              if (heroStop) return
+              typing.remove()
+              heroAdd('bubble penny', pennyHtml(key))
+              await wait(2100)
+            }
+            await wait(1400)
+          }
+        }
+        void runHeroLoop()
+      }
+    }
+
     return () => {
       document.removeEventListener('click', onClick)
       if (onScroll) window.removeEventListener('scroll', onScroll)
+      nav?.removeEventListener('click', onNavClick, true)
       promptWrap?.removeEventListener('click', onChip)
+      heroStop = true
+      heroTimers.forEach(clearTimeout)
       io?.disconnect()
       lenis?.destroy()
     }
