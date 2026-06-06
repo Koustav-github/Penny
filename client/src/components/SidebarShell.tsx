@@ -53,7 +53,7 @@ export default function SidebarShell({
           <IconMenu />
         </button>
         <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-accent-ink font-display font-extrabold text-sm"><Image src={"/penny.webp"} alt='P' width={100} height={100}></Image></span>
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-accent-ink font-display font-extrabold text-sm"><Image src={"/Penny.webp"} alt='P' width={100} height={100}></Image></span>
           <span className="font-display text-lg font-extrabold tracking-tight text-ink">Penny</span>
         </Link>
       </div>
@@ -73,7 +73,7 @@ export default function SidebarShell({
         <div className="flex items-center justify-between mb-6 shrink-0">
           <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2.5 px-2 group">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-accent-ink font-display font-extrabold text-lg shadow-[0_0_24px_var(--glow)] transition-transform group-hover:scale-105">
-              <Image src={"/penny.webp"} alt='P' width={100} height={100}></Image>
+              <Image src={"/Penny.webp"} alt='P' width={100} height={100}></Image>
             </span>
             <span className="font-display text-xl font-extrabold tracking-tight text-ink">Penny</span>
           </Link>
