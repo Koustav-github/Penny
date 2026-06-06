@@ -10,10 +10,22 @@ def test_get_me(client, db):
     assert r.json()["monthly_salary"] == 0
 
 
-def test_update_currency(client, db):
+def test_update_currency_converts_amounts(client, db, monkeypatch):
+    from services import pricing
     auth_as(make_user(db))
+    client.post("/assets", json={"category": "cash", "name": "Wallet", "value": 1000})
+    monkeypatch.setattr(pricing, "get_fx_rate", lambda base, target: 0.012)  # INR->USD
     r = client.patch("/users/me", json={"currency": "USD"})
     assert r.status_code == 200 and r.json()["currency"] == "USD"
+    # the stored amount is re-denominated, not just relabelled
+    assert client.get("/assets").json()[0]["value"] == 12.0
+
+
+def test_currency_change_without_fx_is_rejected(client, db, monkeypatch):
+    from services import pricing
+    auth_as(make_user(db))
+    monkeypatch.setattr(pricing, "get_fx_rate", lambda base, target: None)
+    assert client.patch("/users/me", json={"currency": "USD"}).status_code == 502
 
 
 def test_update_salary(client, db):
@@ -50,7 +62,7 @@ def test_profile_round_trip_with_goal_terms(client, db):
     ]
     assert body["ai_consent"] is False
     # persists, and goals survive an unrelated update
-    client.patch("/users/me", json={"currency": "USD"})
+    client.patch("/users/me", json={"monthly_salary": 1000})
     assert client.get("/users/profile").json()["goals"][1]["term"] == "long"
 
 

@@ -14,44 +14,88 @@ class Category(str, Enum):
     other = "other"
 
 
+# Categories whose value is computed live from a price API (not user-entered).
 QUANTITY_CATEGORIES = {Category.crypto, Category.stock, Category.gold}
+AUTO_CATEGORIES = QUANTITY_CATEGORIES
+SYMBOL_CATEGORIES = {Category.crypto, Category.stock}
 
 
-class AssetBase(BaseModel):
+class AssetIn(BaseModel):
+    """Create/update payload. For auto categories the client omits `value`
+    (server computes it from the price API); for manual categories it's required."""
+
     category: Category
-    name: str = Field(min_length=1, max_length=120)
+    name: str = Field(default="", max_length=120)
     subtype: Optional[str] = Field(default=None, max_length=60)
+    symbol: Optional[str] = Field(default=None, max_length=60)
+    account: Optional[str] = Field(default=None, max_length=120)
     quantity: Optional[float] = Field(default=None, ge=0)
-    value: float = Field(ge=0)
+    value: Optional[float] = Field(default=None, ge=0)
     emi: Optional[float] = Field(default=None, ge=0)  # loan: monthly installment
 
     @model_validator(mode="after")
     def check_category_fields(self):
-        if self.category in QUANTITY_CATEGORIES and self.quantity is None:
-            raise ValueError(f"quantity is required for {self.category.value}")
-        if self.category == Category.loan and self.emi is None:
+        cat = self.category
+        # Cash is auto-named; everything else needs a name.
+        if cat == Category.cash and not (self.name and self.name.strip()):
+            self.name = "Cash"
+        if not self.name or not self.name.strip():
+            raise ValueError("name is required")
+
+        if cat in AUTO_CATEGORIES and self.quantity is None:
+            raise ValueError(f"quantity is required for {cat.value}")
+        if cat in SYMBOL_CATEGORIES and not (self.symbol and self.symbol.strip()):
+            raise ValueError(f"symbol is required for {cat.value}")
+        if cat == Category.loan and self.emi is None:
             raise ValueError("emi is required for loan")
-        if self.category != Category.loan:
+        if cat not in AUTO_CATEGORIES and self.value is None:
+            raise ValueError("value is required")
+        if cat in AUTO_CATEGORIES:
+            self.value = self.value or 0.0  # server prices it; 0 is a placeholder cache
+
+        # Strip fields that don't belong to this category.
+        if cat != Category.loan:
             self.emi = None
-        if self.category != Category.bank:
+        if cat != Category.bank:
             self.subtype = None
+        if cat not in SYMBOL_CATEGORIES:
+            self.symbol = None
+        if cat not in {Category.stock, Category.gold}:
+            self.account = None
         return self
 
 
-class AssetCreate(AssetBase):
+class AssetCreate(AssetIn):
     pass
 
 
-class AssetUpdate(AssetBase):
+class AssetUpdate(AssetIn):
     pass
 
 
-class AssetOut(AssetBase):
+class AssetOut(BaseModel):
     id: int
+    category: Category
+    name: str
+    subtype: Optional[str] = None
+    symbol: Optional[str] = None
+    account: Optional[str] = None
+    quantity: Optional[float] = None
+    value: float
+    emi: Optional[float] = None
+    priced_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class SymbolHit(BaseModel):
+    """One autocomplete match for crypto/stock symbol search."""
+
+    symbol: str
+    name: str
+    exchange: Optional[str] = None
 
 
 class CategorySummary(BaseModel):

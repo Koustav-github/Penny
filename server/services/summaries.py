@@ -10,10 +10,12 @@ from sqlalchemy.orm import Session
 
 import models
 import schemas
+from services import pricing
 
 
 def compute_asset_summary(db: Session, user: models.User) -> schemas.AssetSummary:
     rows = db.query(models.Assets).filter(models.Assets.user_id == user.id).all()
+    pricing.price_assets(db, user, rows)  # refresh live crypto/stock/gold values
     # Loans are liabilities, not holdings: excluded from the asset total and the
     # allocation breakdown. Their EMIs are reported separately.
     holdings = [a for a in rows if a.category != "loan"]

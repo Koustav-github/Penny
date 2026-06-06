@@ -46,6 +46,31 @@ export default function AssetsClient() {
 
   const currency = summary?.currency ?? 'INR'
   const total = summary?.total ?? 0
+  const [currencyBusy, setCurrencyBusy] = useState(false)
+  const [pendingCurrency, setPendingCurrency] = useState<string | null>(null)
+
+  // Selecting a new currency only opens the confirm — converting rewrites every
+  // stored amount, so we ask first.
+  const requestCurrencyChange = (c: string) => {
+    if (c !== currency) setPendingCurrency(c)
+  }
+
+  const confirmCurrencyChange = async () => {
+    const c = pendingCurrency
+    if (!c) return
+    setPendingCurrency(null)
+    setSummary((s) => (s ? { ...s, currency: c } : s)) // optimistic symbol swap
+    setCurrencyBusy(true)
+    try {
+      await api.updateCurrency(getToken, c) // server re-denominates all amounts
+      await load() // pull the converted values
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to change currency')
+      await load() // fall back to server truth
+    } finally {
+      setCurrencyBusy(false)
+    }
+  }
 
   return (
     <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 space-y-6">
@@ -60,10 +85,7 @@ export default function AssetsClient() {
           <p className="font-display text-4xl font-extrabold text-ink tracking-tight tabular-nums">{formatCurrency(total, currency)}</p>
         </div>
         <div className="flex items-center gap-3">
-          <CurrencySelect
-            value={currency}
-            onChange={(c) => setSummary((s) => (s ? { ...s, currency: c } : s))}
-          />
+          <CurrencySelect value={currency} onChange={requestCurrencyChange} disabled={currencyBusy} />
           <button
             onClick={() => { setEditing(undefined); setFormOpen(true) }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5"
@@ -103,12 +125,15 @@ export default function AssetsClient() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{a.name}</p>
                     <p className="text-xs text-faint">
-                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}{a.emi != null ? ` · EMI ${formatCurrency(a.emi, currency)}/mo` : ''}
+                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.account ? ` · ${a.account}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}{a.emi != null ? ` · EMI ${formatCurrency(a.emi, currency)}/mo` : ''}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</span>
+                    {a.priced_at && <span className="text-[10px] font-medium text-accent/80">live</span>}
+                  </div>
                   <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => { setEditing(a); setFormOpen(true) }} className="text-xs text-muted hover:text-ink">Edit</button>
                     <button onClick={() => handleDelete(a.id)} className="text-xs text-negative/80 hover:text-negative">Delete</button>

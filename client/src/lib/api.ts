@@ -9,11 +9,19 @@ type TokenGetter = () => Promise<string | null>
 
 export interface AssetInput {
   category: Category
-  name: string
+  name?: string                 // cash is auto-named server-side
   subtype?: string | null
+  symbol?: string | null        // crypto/stock: API identifier
+  account?: string | null       // stock/gold: demat/bank label
   quantity?: number | null
-  value: number
+  value?: number | null         // omitted for auto categories (server prices it)
   emi?: number | null
+}
+
+export interface SymbolHit {
+  symbol: string
+  name: string
+  exchange?: string | null
 }
 
 export interface Me {
@@ -65,6 +73,15 @@ export const api = {
     req<Expense>(g, `/expenses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteExpense: (g: TokenGetter, id: number) =>
     req<void>(g, `/expenses/${id}`, { method: 'DELETE' }),
+  searchCrypto: (g: TokenGetter, q: string) =>
+    req<SymbolHit[]>(g, `/assets/search/crypto?q=${encodeURIComponent(q)}`),
+  searchStock: (g: TokenGetter, q: string) =>
+    req<SymbolHit[]>(g, `/assets/search/stock?q=${encodeURIComponent(q)}`),
+  quote: (g: TokenGetter, p: { category: Category; quantity: number; symbol?: string | null }) => {
+    const qs = new URLSearchParams({ category: p.category, quantity: String(p.quantity) })
+    if (p.symbol) qs.set('symbol', p.symbol)
+    return req<{ value: number | null; currency: string; priced: boolean }>(g, `/assets/quote?${qs}`)
+  },
   me: (g: TokenGetter) => req<Me>(g, '/users/me'),
   updateCurrency: (g: TokenGetter, currency: string) =>
     req<Me>(g, '/users/me', { method: 'PATCH', body: JSON.stringify({ currency }) }),
