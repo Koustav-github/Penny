@@ -42,14 +42,30 @@ def test_stock_price_fx_converted(monkeypatch):
     assert pricing.get_stock_price("AAPL", "INR") == pytest.approx(8300.0)
 
 
-def test_gold_per_gram(monkeypatch):
-    monkeypatch.setenv("GOLDAPI_KEY", "x")
-    monkeypatch.setattr(pricing, "_get", lambda url, **kw: FakeResp({"price_gram_24k": 6500.0}))
-    assert pricing.get_gold_price_per_gram("INR") == 6500.0
+def test_gold_per_gram_usd(monkeypatch):
+    monkeypatch.setenv("TWELVE_DATA_API_KEY", "x")
+    # XAU/USD per ounce; 3110.34768 / 31.1034768 == 100.0 per gram
+    monkeypatch.setattr(pricing, "_get", lambda url, **kw: FakeResp({"price": "3110.34768"}))
+    assert pricing.get_gold_price_per_gram("USD") == pytest.approx(100.0)
+
+
+def test_gold_per_gram_fx_converted(monkeypatch):
+    monkeypatch.setenv("TWELVE_DATA_API_KEY", "x")
+    monkeypatch.setenv("EXCHANGE_RATES_API_KEY", "x")
+
+    def fake_get(url, **kw):
+        if "price" in url:
+            return FakeResp({"price": "3110.34768"})  # -> 100 USD/gram
+        if "pair" in url:
+            return FakeResp({"result": "success", "conversion_rate": 83.0})
+        raise AssertionError(url)
+
+    monkeypatch.setattr(pricing, "_get", fake_get)
+    assert pricing.get_gold_price_per_gram("INR") == pytest.approx(8300.0)
 
 
 def test_gold_missing_key_returns_none(monkeypatch):
-    monkeypatch.delenv("GOLDAPI_KEY", raising=False)
+    monkeypatch.delenv("TWELVE_DATA_API_KEY", raising=False)
     assert pricing.get_gold_price_per_gram("INR") is None
 
 

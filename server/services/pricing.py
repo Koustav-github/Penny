@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 
 COINGECKO_BASE = "https://api.coingecko.com/api/v3"
 TWELVEDATA_BASE = "https://api.twelvedata.com"
-GOLDAPI_BASE = "https://www.goldapi.io/api"
 EXCHANGERATE_BASE = "https://v6.exchangerate-api.com/v6"
 
 GRAMS_PER_TROY_OUNCE = 31.1034768
@@ -192,30 +191,32 @@ def search_stock(q: str) -> list[schemas.SymbolHit]:
 # -------------------------------------------------------------------------- Gold
 
 def get_gold_price_per_gram(currency: str) -> Optional[float]:
-    """24k gold price per gram in the user's currency. None on failure/missing key."""
+    """Gold price per gram in the user's currency via Twelve Data's XAU/USD spot
+    pair (per troy ounce, USD) -> per gram -> FX. None on failure/missing key."""
     key = f"gold:{currency.upper()}"
     cached = _cache_get(key)
     if cached is not None:
         return cached
-    api_key = os.getenv("GOLDAPI_KEY")
+    api_key = os.getenv("TWELVE_DATA_API_KEY")
     if not api_key:
         return None
     try:
-        r = _get(
-            f"{GOLDAPI_BASE}/XAU/{currency.upper()}",
-            headers={"x-access-token": api_key},
-        )
-        data = r.json()
-        per_gram = data.get("price_gram_24k")
-        if per_gram is None and data.get("price") is not None:
-            per_gram = float(data["price"]) / GRAMS_PER_TROY_OUNCE
-        if per_gram is None:
+        r = _get(f"{TWELVEDATA_BASE}/price", params={"symbol": "XAU/USD", "apikey": api_key})
+        raw = r.json().get("price")
+        if raw is None:
             return None
-        per_gram = float(per_gram)
+        per_gram_usd = float(raw) / GRAMS_PER_TROY_OUNCE
+        if currency.upper() == "USD":
+            per_gram = per_gram_usd
+        else:
+            fx = get_fx_rate("USD", currency)
+            if fx is None:
+                return None
+            per_gram = per_gram_usd * fx
         _cache_set(key, per_gram)
         return per_gram
     except Exception as exc:  # noqa: BLE001
-        logger.warning("GoldAPI failed: %s", exc)
+        logger.warning("Twelve Data gold (XAU/USD) failed: %s", exc)
         return None
 
 

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from database import get_database
 from auth import get_current_user
+from services import pricing
 import models
 import schemas
 
@@ -14,14 +15,33 @@ def get_me(user: models.User = Depends(get_current_user)):
     return user
 
 
+def _convert_currency(db: Session, user: models.User, old: str, new: str) -> None:
+    """Convert every stored amount (asset values + EMIs, expenses, salary) from
+    `old` to `new` so the user's money is actually re-denominated, not relabelled.
+    Aborts (502) if no FX rate is available, leaving amounts consistent."""
+    rate = pricing.get_fx_rate(old, new)
+    if rate is None:
+        raise HTTPException(status_code=502, detail="Conversion rate unavailable. Please try again.")
+    for a in db.query(models.Assets).filter(models.Assets.user_id == user.id).all():
+        if a.value is not None:
+            a.value = round(a.value * rate, 2)
+        if a.emi is not None:
+            a.emi = round(a.emi * rate, 2)
+    for e in db.query(models.Expense).filter(models.Expense.user_id == user.id).all():
+        e.amount = round(e.amount * rate, 2)
+    if user.monthly_salary:
+        user.monthly_salary = round(user.monthly_salary * rate, 2)
+    user.currency = new
+
+
 @router.patch("/me", response_model=schemas.UserOut)
 def update_me(
     payload: schemas.UserUpdate,
     db: Session = Depends(get_database),
     user: models.User = Depends(get_current_user),
 ):
-    if payload.currency is not None:
-        user.currency = payload.currency
+    if payload.currency is not None and payload.currency != user.currency:
+        _convert_currency(db, user, user.currency, payload.currency)
     if payload.monthly_salary is not None:
         user.monthly_salary = payload.monthly_salary
     db.commit()
