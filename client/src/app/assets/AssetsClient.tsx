@@ -103,12 +103,15 @@ export default function AssetsClient() {
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{a.name}</p>
                     <p className="text-xs text-faint">
-                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}{a.emi != null ? ` · EMI ${formatCurrency(a.emi, currency)}/mo` : ''}
+                      {label}{a.subtype ? ` · ${a.subtype}` : ''}{a.account ? ` · ${a.account}` : ''}{a.quantity != null ? ` · ${a.quantity}` : ''}{a.emi != null ? ` · EMI ${formatCurrency(a.emi, currency)}/mo` : ''}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-sm font-semibold text-ink tabular-nums">{formatCurrency(a.value, currency)}</span>
+                    {a.priced_at && <span className="text-[10px] font-medium text-accent/80">live</span>}
+                  </div>
                   <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => { setEditing(a); setFormOpen(true) }} className="text-xs text-muted hover:text-ink">Edit</button>
                     <button onClick={() => handleDelete(a.id)} className="text-xs text-negative/80 hover:text-negative">Delete</button>

@@ -99,7 +99,7 @@ html.light {
   --color-primary-hover: var(--primary-hover);
 
   --font-display: var(--font-bricolage);
-  --font-sans: var(--font-geist);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -110,7 +110,7 @@ html.light {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-geist), system-ui, sans-serif;
+  font-family: var(--font-jakarta), system-ui, sans-serif;
   transition: background-color 0.35s ease, color 0.35s ease;
   -webkit-font-smoothing: antialiased;
 }

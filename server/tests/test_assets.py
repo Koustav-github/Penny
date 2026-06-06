@@ -21,6 +21,31 @@ def test_quantity_required_for_crypto(client, db):
     assert resp.status_code == 422
 
 
+def test_symbol_required_for_crypto_and_stock(client, db):
+    auth_as(make_user(db))
+    # quantity present but no symbol -> rejected
+    assert client.post("/assets", json={
+        "category": "crypto", "name": "Bitcoin", "quantity": 1,
+    }).status_code == 422
+    assert client.post("/assets", json={
+        "category": "stock", "name": "Reliance", "quantity": 10,
+    }).status_code == 422
+
+
+def test_gold_requires_quantity(client, db):
+    auth_as(make_user(db))
+    assert client.post("/assets", json={
+        "category": "gold", "name": "Gold", "account": "Zerodha",
+    }).status_code == 422
+
+
+def test_cash_is_auto_named(client, db):
+    auth_as(make_user(db))
+    resp = client.post("/assets", json={"category": "cash", "value": 500})
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["name"] == "Cash"
+
+
 def test_cannot_touch_another_users_asset(client, db):
     a = make_user(db, clerk_id="a", email="a@x.com")
     b = make_user(db, clerk_id="b", email="b@x.com")
