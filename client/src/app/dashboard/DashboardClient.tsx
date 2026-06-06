@@ -100,10 +100,6 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-border text-xs text-muted font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Live
-          </span>
           <Link
             href="/ai-reports"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5"
@@ -133,14 +129,11 @@ export default function DashboardClient({ firstName }: DashboardClientProps) {
                   {formatCurrency(assetTotal, currency)} assets + {formatCurrency(salary, currency)} income − {formatCurrency(thisMonthSpend, currency)} spent − {formatCurrency(emiTotal, currency)} EMIs
                 </p>
               </div>
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-positive/15 text-positive text-xs font-semibold">
-                <SparkIcon /> Tracked
-              </div>
             </div>
 
             {summary && summary.total > 0 ? (
               <div className="mt-8 pt-6 border-t border-border">
-                <CategoryDonut data={summary.by_category} />
+                <CategoryDonut data={summary.by_category} avatarUrl={user?.imageUrl} />
               </div>
             ) : (
               <div className="mt-8 pt-6 border-t border-border">

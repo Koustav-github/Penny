@@ -10,7 +10,17 @@ from sqlalchemy.orm import Session
 
 import models
 import schemas
-from services import pricing
+from services import pricing, money
+
+_AUTO = {"crypto", "stock", "gold"}
+
+
+def _display_value(asset: models.Assets, user: models.User) -> float:
+    """Asset value in the user's display currency: auto assets are already
+    priced in display currency; manual ones are stored in base and converted."""
+    if asset.category in _AUTO:
+        return asset.value or 0.0
+    return money.to_display(asset.value, user) or 0.0
 
 
 def compute_asset_summary(db: Session, user: models.User) -> schemas.AssetSummary:
@@ -19,19 +29,20 @@ def compute_asset_summary(db: Session, user: models.User) -> schemas.AssetSummar
     # Loans are liabilities, not holdings: excluded from the asset total and the
     # allocation breakdown. Their EMIs are reported separately.
     holdings = [a for a in rows if a.category != "loan"]
-    emi_total = sum(a.emi or 0.0 for a in rows if a.category == "loan")
-    total = sum(a.value for a in holdings)
+    emi_total = sum((money.to_display(a.emi or 0.0, user) or 0.0) for a in rows if a.category == "loan")
+    total = sum(_display_value(a, user) for a in holdings)
     buckets: dict[str, float] = {}
     for a in holdings:
-        buckets[a.category] = buckets.get(a.category, 0.0) + a.value
+        buckets[a.category] = buckets.get(a.category, 0.0) + _display_value(a, user)
     by_category = [
         schemas.CategorySummary(
-            category=cat, total=amt, pct=round((amt / total * 100), 2) if total else 0.0
+            category=cat, total=round(amt, 2), pct=round((amt / total * 100), 2) if total else 0.0
         )
         for cat, amt in buckets.items()
     ]
     return schemas.AssetSummary(
-        total=total, currency=user.currency, by_category=by_category, emi_total=emi_total
+        total=round(total, 2), currency=user.currency, by_category=by_category,
+        emi_total=round(emi_total, 2),
     )
 
 
@@ -63,16 +74,19 @@ def compute_expense_summary(db: Session, user: models.User) -> schemas.ExpenseSu
         .all()
     )
 
+    # Expenses are stored in base currency; convert each to the display currency.
+    amt_of = {e.id: (money.to_display(e.amount, user) or 0.0) for e in rows}
+
     current_key = _month_key(today)
     current_rows = [e for e in rows if _month_key(e.spent_on) == current_key]
-    total = sum(e.amount for e in current_rows)
+    total = sum(amt_of[e.id] for e in current_rows)
 
     buckets: dict[str, float] = {}
     for e in current_rows:
-        buckets[e.category] = buckets.get(e.category, 0.0) + e.amount
+        buckets[e.category] = buckets.get(e.category, 0.0) + amt_of[e.id]
     by_category = [
         schemas.ExpenseCategorySummary(
-            category=cat, total=amt, pct=round((amt / total * 100), 2) if total else 0.0
+            category=cat, total=round(amt, 2), pct=round((amt / total * 100), 2) if total else 0.0
         )
         for cat, amt in sorted(buckets.items(), key=lambda kv: kv[1], reverse=True)
     ]
@@ -81,11 +95,11 @@ def compute_expense_summary(db: Session, user: models.User) -> schemas.ExpenseSu
     for e in rows:
         key = _month_key(e.spent_on)
         if key in monthly_totals:
-            monthly_totals[key] += e.amount
-    monthly = [schemas.MonthlySpend(month=k, total=monthly_totals[k]) for k in month_keys]
+            monthly_totals[key] += amt_of[e.id]
+    monthly = [schemas.MonthlySpend(month=k, total=round(monthly_totals[k], 2)) for k in month_keys]
 
     return schemas.ExpenseSummary(
-        total=total,
+        total=round(total, 2),
         currency=user.currency,
         count=len(current_rows),
         by_category=by_category,

@@ -5,10 +5,10 @@ import { usePathname } from 'next/navigation'
 
 /**
  * Penny loading sequence.
- *  - First document load: a sphere flips its glyph P → $ → P → ₹, then shrinks
- *    and flies into the nav brand logo, revealing the page.
- *  - Every client-side route change after that: a quick single spin that fades
- *    out at center (snappy page-shift transition).
+ * - First document load: a sphere flips its glyph P → $ → P → ₹, then shrinks
+ * and flies into the nav brand logo, revealing the page.
+ * - Every client-side route change after that: a quick single spin that fades
+ * out at center (snappy page-shift transition).
  *
  * `introComplete` is module-scoped so it survives React StrictMode's dev
  * double-mount (only flips once the cinematic intro actually runs), while still
@@ -16,7 +16,8 @@ import { usePathname } from 'next/navigation'
  */
 let introComplete = false
 
-const SEQ = ['P', '$', 'P', '₹']
+// Use the image path directly in the sequence array
+const SEQ = ['/Penny.webp', '$', '/Penny.webp', '₹']
 const ORB_SIZE = 156
 const FLIP_MS = 720
 
@@ -55,9 +56,13 @@ export default function PennyLoader() {
     root.classList.add('penny-loading')
     document.body.style.overflow = 'hidden'
 
-    // Keep the glyph upright when the disc is on its back half-turn.
-    const dressGlyph = (text: string) => {
-      glyph.textContent = text
+    // Smart update: Checks if the string is an image path or plain text glyph
+    const dressGlyph = (content: string) => {
+      if (content.endsWith('.webp') || content.startsWith('/')) {
+        glyph.innerHTML = `<img src="${content}" alt="Penny" style="width: 150px; height: 150px; object-fit: contain; pointer-events: none; padding-left: 10px" />`
+      } else {
+        glyph.textContent = content
+      }
       glyph.style.transform = Math.abs(rot % 360) === 180 ? 'rotateY(180deg)' : 'rotateY(0deg)'
     }
 
@@ -73,9 +78,6 @@ export default function PennyLoader() {
     }
 
     const hide = () => {
-      // Reveal the nav logo only now — beneath the orb once it has settled —
-      // then drop the orb a beat later so the hand-off has no gap and the logo
-      // is never visible before the orb arrives.
       root.classList.remove('penny-loading')
       timers.push(window.setTimeout(() => {
         if (cancelled) return
@@ -98,18 +100,18 @@ export default function PennyLoader() {
         scale = r.width / ORB_SIZE
       }
 
-      // Settle facing forward, showing "P" to match the nav logo.
       if (Math.abs(rot % 360) !== 0) rot += 180
-      rot += 360 // a final spin while travelling
+      rot += 360 
       coin.style.transition = 'transform 1s cubic-bezier(.62,.04,.3,1)'
       coin.style.transform = `rotateY(${rot}deg)`
       timers.push(window.setTimeout(() => {
         if (cancelled) return
-        dressGlyph('P')
+        // Keep the image in place at settlement to match your brand mark
+        dressGlyph('/Penny.webp')
         glyph.style.opacity = '1'
       }, 120))
 
-      loader.classList.add('revealing')        // fade backdrop → page shows
+      loader.classList.add('revealing')        
       orb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${scale})`
       timers.push(window.setTimeout(() => { if (!cancelled) hide() }, 1000))
     }
@@ -133,15 +135,15 @@ export default function PennyLoader() {
     }
 
     const runQuick = async () => {
-      dressGlyph('P')
+      dressGlyph('/Penny.webp') // Instantly uses the image instead of the code string
       if (reduce) { finishQuick(); return }
-      flipTo('₹')                       // one coin flip — same analogy, snappy
+      flipTo('₹')                      
       await wait(780); if (cancelled) return
       finishQuick()
     }
 
     const onClick = () => { if (mode === 'full') finishFull(); else finishQuick() }
-    loader.addEventListener('click', onClick) // tap to skip
+    loader.addEventListener('click', onClick) 
 
     if (mode === 'full') void runFull()
     else void runQuick()
@@ -159,7 +161,10 @@ export default function PennyLoader() {
     <div id="penny-loader" ref={rootRef} aria-hidden="true">
       <div className="loader-orb" ref={orbRef}>
         <div className="lo-coin" ref={coinRef}>
-          <span className="lo-glyph" ref={glyphRef}>P</span>
+          <span className="lo-glyph" ref={glyphRef}>
+            {/* Initial Server Render Placeholder */}
+            <img src="/Penny.webp" alt="Penny" style={{ width: '100px', height: '100px', objectFit: 'contain' }} />
+          </span>
         </div>
       </div>
     </div>

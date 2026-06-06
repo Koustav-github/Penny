@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 from services.summaries import compute_asset_summary, compute_expense_summary
+from services import money
 
 logger = logging.getLogger(__name__)
 
@@ -56,12 +57,13 @@ def build_snapshot(db: Session, user: models.User) -> dict:
     assets = compute_asset_summary(db, user)
     expenses = compute_expense_summary(db, user)
     emi_total = assets.emi_total
-    net_worth = assets.total + (user.monthly_salary or 0.0) - expenses.total - emi_total
+    salary = money.to_display(user.monthly_salary or 0.0, user) or 0.0  # base -> display
+    net_worth = assets.total + salary - expenses.total - emi_total
 
     return {
         "currency": user.currency,
         "net_worth": round(net_worth, 2),
-        "monthly_salary": user.monthly_salary or 0.0,
+        "monthly_salary": salary,
         "assets": {
             "total_excluding_loans": assets.total,
             "by_category": [

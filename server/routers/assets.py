@@ -3,11 +3,34 @@ from sqlalchemy.orm import Session
 from database import get_database
 from auth import get_current_user
 from services.summaries import compute_asset_summary
-from services import pricing
+from services import pricing, money
 import models
 import schemas
 
 router = APIRouter(prefix="/assets", tags=["assets"])
+
+AUTO = {"crypto", "stock", "gold"}
+
+
+def _to_out(asset: models.Assets, user: models.User) -> schemas.AssetOut:
+    """Serialize an asset with monetary fields in the user's display currency.
+    Auto-priced assets already hold a display-currency value; manual ones are
+    stored in base currency and converted on the way out."""
+    value = asset.value if asset.category in AUTO else money.to_display(asset.value, user)
+    return schemas.AssetOut(
+        id=asset.id,
+        category=asset.category,
+        name=asset.name,
+        subtype=asset.subtype,
+        symbol=asset.symbol,
+        account=asset.account,
+        quantity=asset.quantity,
+        value=value if value is not None else 0.0,
+        emi=money.to_display(asset.emi, user) if asset.emi is not None else None,
+        priced_at=asset.priced_at,
+        created_at=asset.created_at,
+        updated_at=asset.updated_at,
+    )
 
 
 def _owned(db: Session, user: models.User, asset_id: int) -> models.Assets:
@@ -66,7 +89,7 @@ def list_assets(db: Session = Depends(get_database), user: models.User = Depends
         .all()
     )
     pricing.price_assets(db, user, rows)  # refresh live crypto/stock/gold values
-    return rows
+    return [_to_out(a, user) for a in rows]
 
 
 @router.post("", response_model=schemas.AssetOut, status_code=status.HTTP_201_CREATED)
@@ -77,12 +100,17 @@ def create_asset(
 ):
     asset = models.Assets(user_id=user.id, **payload.model_dump())
     asset.category = asset.category.value if hasattr(asset.category, "value") else asset.category
+    # Manual values are entered in the display currency -> store in base.
+    if asset.category not in AUTO:
+        asset.value = money.to_base(asset.value, user)
+    if asset.emi is not None:
+        asset.emi = money.to_base(asset.emi, user)
     db.add(asset)
     db.commit()
     db.refresh(asset)
     pricing.price_assets(db, user, [asset])  # populate live value before responding
     db.refresh(asset)
-    return asset
+    return _to_out(asset, user)
 
 
 @router.patch("/{asset_id}", response_model=schemas.AssetOut)
@@ -97,11 +125,16 @@ def update_asset(
     data["category"] = data["category"].value if hasattr(data["category"], "value") else data["category"]
     for key, val in data.items():
         setattr(asset, key, val)
+    # Manual values arrive in the display currency -> store in base.
+    if asset.category not in AUTO:
+        asset.value = money.to_base(asset.value, user)
+    if asset.emi is not None:
+        asset.emi = money.to_base(asset.emi, user)
     db.commit()
     db.refresh(asset)
     pricing.price_assets(db, user, [asset])  # re-price after quantity/symbol change
     db.refresh(asset)
-    return asset
+    return _to_out(asset, user)
 
 
 @router.delete("/{asset_id}", status_code=status.HTTP_204_NO_CONTENT)

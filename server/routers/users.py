@@ -1,37 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from database import get_database
 from auth import get_current_user
-from services import pricing
+from services import money
 import models
 import schemas
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+def _user_out(user: models.User) -> schemas.UserOut:
+    return schemas.UserOut(
+        id=user.id,
+        email=user.email,
+        currency=user.currency,
+        monthly_salary=money.to_display(user.monthly_salary, user) or 0.0,
+    )
+
+
 @router.get("/me", response_model=schemas.UserOut)
 def get_me(user: models.User = Depends(get_current_user)):
-    return user
-
-
-def _convert_currency(db: Session, user: models.User, old: str, new: str) -> None:
-    """Convert every stored amount (asset values + EMIs, expenses, salary) from
-    `old` to `new` so the user's money is actually re-denominated, not relabelled.
-    Aborts (502) if no FX rate is available, leaving amounts consistent."""
-    rate = pricing.get_fx_rate(old, new)
-    if rate is None:
-        raise HTTPException(status_code=502, detail="Conversion rate unavailable. Please try again.")
-    for a in db.query(models.Assets).filter(models.Assets.user_id == user.id).all():
-        if a.value is not None:
-            a.value = round(a.value * rate, 2)
-        if a.emi is not None:
-            a.emi = round(a.emi * rate, 2)
-    for e in db.query(models.Expense).filter(models.Expense.user_id == user.id).all():
-        e.amount = round(e.amount * rate, 2)
-    if user.monthly_salary:
-        user.monthly_salary = round(user.monthly_salary * rate, 2)
-    user.currency = new
+    return _user_out(user)
 
 
 @router.patch("/me", response_model=schemas.UserOut)
@@ -40,13 +30,15 @@ def update_me(
     db: Session = Depends(get_database),
     user: models.User = Depends(get_current_user),
 ):
-    if payload.currency is not None and payload.currency != user.currency:
-        _convert_currency(db, user, user.currency, payload.currency)
+    # Currency is the display preference only — stored amounts stay in base
+    # currency, so switching is a lossless view change (exact round-trips).
+    if payload.currency is not None:
+        user.currency = payload.currency
     if payload.monthly_salary is not None:
-        user.monthly_salary = payload.monthly_salary
+        user.monthly_salary = money.to_base(payload.monthly_salary, user)
     db.commit()
     db.refresh(user)
-    return user
+    return _user_out(user)
 
 
 def _normalize_goals(raw) -> list[dict] | None:

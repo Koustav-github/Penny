@@ -115,7 +115,7 @@
 .penny-root .brand-word { display: inline-block; max-width: 140px; overflow: hidden; white-space: nowrap; transition: opacity .3s ease .45s, max-width .4s ease .45s; }
 .penny-root .nav-links, .penny-root .nav-cta { transition: opacity .35s ease .45s; }
 .penny-root .nav-inner.collapsed {
-  width: 52px; height: 52px; padding: 12px; margin-left: 10px; cursor: pointer;
+  width: 52px; height: 52px; padding: 9px; margin-left: 10px; cursor: pointer;
 }
 .penny-root .nav-inner.collapsed .brand { gap: 0; }
 /* Collapse: fade the content out immediately (no delay) before the bar shrinks. */
@@ -126,9 +126,11 @@
 .penny-root .nav-inner.collapsed .coin-mark { animation: penny-logo-spin .7s cubic-bezier(.6,.02,.3,1); }
 .penny-root .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 21px; letter-spacing: -0.02em; }
 .penny-root .brand .coin-mark {
-  width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #e2ff8f, var(--accent) 45%, var(--accent-deep) 100%);
-  display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 14px; color: #04130a;
+  width: 35px; height: 35px; flex-shrink: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: grid; place-items: center;
   box-shadow: inset 0 -2px 4px rgba(0,0,0,.3), 0 2px 8px -2px var(--accent-glow);
   transition: opacity .45s ease;
 }

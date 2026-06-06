@@ -13,8 +13,9 @@ export async function AppSidebar({ active }: { active: string }) {
   const user = await currentUser()
   const firstName = user?.firstName ?? 'there'
   const email = user?.emailAddresses[0]?.emailAddress ?? ''
+  const imageUrl = user?.imageUrl ?? null
 
-  return <SidebarShell active={active} firstName={firstName} email={email} navItems={navItems} />
+  return <SidebarShell active={active} firstName={firstName} email={email} imageUrl={imageUrl} navItems={navItems} />
 }
 
 function IconGrid() {

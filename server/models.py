@@ -11,8 +11,9 @@ class User(Base):
     clerk_id = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     net_asset = Column(Float, default=0.0)  # legacy; no longer read/written
-    currency = Column(String, nullable=False, server_default="INR")
-    monthly_salary = Column(Float, nullable=False, server_default="0")  # monthly income
+    currency = Column(String, nullable=False, server_default="INR")        # display currency
+    base_currency = Column(String, nullable=False, server_default="INR")   # storage denomination
+    monthly_salary = Column(Float, nullable=False, server_default="0")  # monthly income (in base)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Financial profile (for AI Reports)

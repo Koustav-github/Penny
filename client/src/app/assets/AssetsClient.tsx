@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import { api, type AssetInput } from '@/lib/api'
 import { formatCurrency } from '@/lib/format'
 import { CATEGORIES, CATEGORY_COLORS, type Asset, type AssetSummary } from '@/lib/assets'
@@ -11,6 +11,7 @@ import CurrencySelect from '@/components/CurrencySelect'
 
 export default function AssetsClient() {
   const { getToken } = useAuth()
+  const { user } = useUser()
   const [assets, setAssets] = useState<Asset[]>([])
   const [summary, setSummary] = useState<AssetSummary | null>(null)
   const [loading, setLoading] = useState(true)
@@ -47,28 +48,25 @@ export default function AssetsClient() {
   const currency = summary?.currency ?? 'INR'
   const total = summary?.total ?? 0
   const [currencyBusy, setCurrencyBusy] = useState(false)
-  const [pendingCurrency, setPendingCurrency] = useState<string | null>(null)
+  const [selCurrency, setSelCurrency] = useState<string | null>(null)
 
-  // Selecting a new currency only opens the confirm — converting rewrites every
-  // stored amount, so we ask first.
-  const requestCurrencyChange = (c: string) => {
-    if (c !== currency) setPendingCurrency(c)
-  }
-
-  const confirmCurrencyChange = async () => {
-    const c = pendingCurrency
-    if (!c) return
-    setPendingCurrency(null)
-    setSummary((s) => (s ? { ...s, currency: c } : s)) // optimistic symbol swap
+  // Currency is a display preference (lossless view change). The dropdown updates
+  // immediately, but the displayed amounts — symbol *and* value — only change
+  // together once the reload brings the converted figures, so you never see the
+  // new symbol sitting on the old, unconverted numbers.
+  const changeCurrency = async (c: string) => {
+    if (c === currency) return
+    setSelCurrency(c)
     setCurrencyBusy(true)
     try {
-      await api.updateCurrency(getToken, c) // server re-denominates all amounts
-      await load() // pull the converted values
+      await api.updateCurrency(getToken, c)
+      await load()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to change currency')
-      await load() // fall back to server truth
+      await load()
     } finally {
       setCurrencyBusy(false)
+      setSelCurrency(null)
     }
   }
 
@@ -82,10 +80,13 @@ export default function AssetsClient() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-xs font-semibold text-faint uppercase tracking-[0.16em]">Total Value</p>
-          <p className="font-display text-4xl font-extrabold text-ink tracking-tight tabular-nums">{formatCurrency(total, currency)}</p>
+          <p className="font-display text-4xl font-extrabold text-ink tracking-tight tabular-nums flex items-center gap-3">
+            <span className={currencyBusy ? 'opacity-40 transition-opacity' : 'transition-opacity'}>{formatCurrency(total, currency)}</span>
+            {currencyBusy && <Spinner />}
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <CurrencySelect value={currency} onChange={requestCurrencyChange} disabled={currencyBusy} />
+          <CurrencySelect value={selCurrency ?? currency} onChange={changeCurrency} disabled={currencyBusy} />
           <button
             onClick={() => { setEditing(undefined); setFormOpen(true) }}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent hover:bg-accent-press text-accent-ink text-sm font-semibold transition-all shadow-[0_0_24px_var(--glow)] hover:-translate-y-0.5"
@@ -100,8 +101,8 @@ export default function AssetsClient() {
       )}
 
       {!loading && summary && summary.total > 0 && (
-        <div className="rounded-3xl bg-surface border border-border p-6">
-          <CategoryDonut data={summary.by_category} />
+        <div className={`rounded-3xl bg-surface border border-border p-6 transition-opacity ${currencyBusy ? 'opacity-40' : ''}`}>
+          <CategoryDonut data={summary.by_category} avatarUrl={user?.imageUrl} />
         </div>
       )}
 
@@ -112,7 +113,7 @@ export default function AssetsClient() {
           <p className="text-muted">No assets yet — add your first to see it on your dashboard.</p>
         </div>
       ) : (
-        <div className="rounded-3xl bg-surface border border-border divide-y divide-border overflow-hidden">
+        <div className={`rounded-3xl bg-surface border border-border divide-y divide-border overflow-hidden transition-opacity ${currencyBusy ? 'opacity-40' : ''}`}>
           {assets.map((a) => {
             const label = CATEGORIES.find((c) => c.value === a.category)?.label ?? a.category
             return (
@@ -195,6 +196,15 @@ function AssetsSkeleton() {
         ))}
       </div>
     </div>
+  )
+}
+
+function Spinner() {
+  return (
+    <svg className="w-5 h-5 animate-spin text-accent" viewBox="0 0 24 24" fill="none" aria-label="Updating">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+      <path className="opacity-90" d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
   )
 }
 

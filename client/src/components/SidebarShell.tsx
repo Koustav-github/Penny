@@ -19,11 +19,13 @@ export default function SidebarShell({
   active,
   firstName,
   email,
+  imageUrl,
   navItems,
 }: {
   active: string
   firstName: string
   email: string
+  imageUrl?: string | null
   navItems: NavItem[]
 }) {
   const [open, setOpen] = useState(false)
@@ -50,7 +52,7 @@ export default function SidebarShell({
           <IconMenu />
         </button>
         <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-accent-ink font-display font-extrabold text-sm">P</span>
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-accent-ink font-display font-extrabold text-sm">P</span>
           <span className="font-display text-lg font-extrabold tracking-tight text-ink">Penny</span>
         </Link>
       </div>
@@ -69,7 +71,7 @@ export default function SidebarShell({
         {/* Logo + mobile close (pinned) */}
         <div className="flex items-center justify-between mb-6 shrink-0">
           <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2.5 px-2 group">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent text-accent-ink font-display font-extrabold text-lg shadow-[0_0_24px_var(--glow)] transition-transform group-hover:scale-105">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent text-accent-ink font-display font-extrabold text-lg shadow-[0_0_24px_var(--glow)] transition-transform group-hover:scale-105">
               P
             </span>
             <span className="font-display text-xl font-extrabold tracking-tight text-ink">Penny</span>
@@ -118,9 +120,14 @@ export default function SidebarShell({
             <ThemeToggle />
           </div>
           <div className="flex items-center gap-3 px-2 py-2 rounded-xl">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-accent/15 text-accent font-semibold text-sm shrink-0">
-              {firstName.charAt(0).toUpperCase()}
-            </div>
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imageUrl} alt={firstName} className="h-9 w-9 rounded-full object-cover shrink-0 ring-1 ring-border-strong" />
+            ) : (
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-accent/15 text-accent font-semibold text-sm shrink-0">
+                {firstName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-medium text-ink truncate">{firstName}</span>
               <span className="text-xs text-faint truncate">{email}</span>

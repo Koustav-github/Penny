@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 
@@ -27,7 +28,7 @@ export default function LandingNav() {
     <>
       <nav className="nav-inner" aria-label="Primary">
         <Link className="brand" href="#top" onClick={() => setOpen(false)}>
-          <span className="coin-mark">P</span><span className="brand-word">Penny</span>
+          <span className="coin-mark"><Image src="/Penny.webp" alt="image" width={100} height={100}></Image></span><span className="brand-word">Penny</span>
         </Link>
 
         <div className="nav-links">

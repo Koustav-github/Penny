@@ -50,6 +50,9 @@ export const metadata: Metadata = {
   title: "Penny — AI wealth management",
   description:
     "Penny is an AI financial assistant that tracks your assets, analyzes your finances, and helps you grow your net worth.",
+  icons: {
+    icon: "/Penny.webp",
+  },
 };
 
 // Runs before first paint to apply the saved theme and avoid a flash.

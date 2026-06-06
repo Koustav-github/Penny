@@ -10,22 +10,25 @@ def test_get_me(client, db):
     assert r.json()["monthly_salary"] == 0
 
 
-def test_update_currency_converts_amounts(client, db, monkeypatch):
+def test_currency_is_display_only_and_round_trips(client, db, monkeypatch):
     from services import pricing
-    auth_as(make_user(db))
+    auth_as(make_user(db))  # base = display = INR
     client.post("/assets", json={"category": "cash", "name": "Wallet", "value": 1000})
-    monkeypatch.setattr(pricing, "get_fx_rate", lambda base, target: 0.012)  # INR->USD
-    r = client.patch("/users/me", json={"currency": "USD"})
-    assert r.status_code == 200 and r.json()["currency"] == "USD"
-    # the stored amount is re-denominated, not just relabelled
+    monkeypatch.setattr(pricing, "get_fx_rate", lambda b, t: 0.012)  # INR->USD
+    # switching display converts on read; stored base is untouched
+    assert client.patch("/users/me", json={"currency": "USD"}).status_code == 200
     assert client.get("/assets").json()[0]["value"] == 12.0
+    # switching back to base is exact — no drift
+    assert client.patch("/users/me", json={"currency": "INR"}).status_code == 200
+    assert client.get("/assets").json()[0]["value"] == 1000.0
 
 
-def test_currency_change_without_fx_is_rejected(client, db, monkeypatch):
+def test_currency_change_does_not_require_fx(client, db, monkeypatch):
     from services import pricing
     auth_as(make_user(db))
-    monkeypatch.setattr(pricing, "get_fx_rate", lambda base, target: None)
-    assert client.patch("/users/me", json={"currency": "USD"}).status_code == 502
+    monkeypatch.setattr(pricing, "get_fx_rate", lambda b, t: None)
+    # changing the display currency never needs a rate (no data is converted)
+    assert client.patch("/users/me", json={"currency": "USD"}).status_code == 200
 
 
 def test_update_salary(client, db):
